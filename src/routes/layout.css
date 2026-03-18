@@ -3,6 +3,7 @@
 @plugin 'flowbite/plugin';
 
 @source '../node_modules/flowbite-svelte-icons/dist';
+@source '../node_modules/flowbite-svelte-illustrations/dist';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
