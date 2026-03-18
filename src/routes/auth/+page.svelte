@@ -1,19 +1,29 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { Input, Label, ButtonGroup, RadioButton, Button } from 'flowbite-svelte';
+	import { userState } from '$lib/user.svelte.ts';
 
-	let userType = $state();
+	let email = $state();
+	let password = $state();
+	let userType = $state('student');
+
+	function doLogin() {
+		console.log('login called');
+		userState.userType = userType;
+		goto('/');
+	}
 </script>
 
 <div class="grid h-dvh w-dvw place-items-center">
-	<form class="flex max-w-sm flex-col gap-3">
+	<form on:submit|preventDefault={doLogin} class="flex max-w-sm flex-col gap-3">
 		<div>
 			<Label>Correo electrónico</Label>
-			<Input />
+			<Input bind:value={email} />
 		</div>
 
 		<div>
 			<Label>Contraseña</Label>
-			<Input />
+			<Input bind:value={password} type="password" />
 		</div>
 
 		<div class="mb-3 flex items-center justify-center gap-2">
@@ -25,6 +35,6 @@
 			</ButtonGroup>
 		</div>
 
-		<Button>Iniciar sesión</Button>
+		<Button type="submit">Iniciar sesión</Button>
 	</form>
 </div>
