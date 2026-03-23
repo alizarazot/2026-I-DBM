@@ -1,3 +1,3 @@
 export const userState = $state({
-	userType: null
+	userType: null,
 });

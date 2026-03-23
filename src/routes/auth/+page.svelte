@@ -1,17 +1,23 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { Input, Label, ButtonGroup, RadioButton, Button } from 'flowbite-svelte';
-	import { userState } from '$lib/user.svelte.ts';
+import { goto } from "$app/navigation";
+import {
+	Input,
+	Label,
+	ButtonGroup,
+	RadioButton,
+	Button,
+} from "flowbite-svelte";
+import { userState } from "$lib/user.svelte.ts";
 
-	let email = $state();
-	let password = $state();
-	let userType = $state('student');
+let email = $state();
+let password = $state();
+let userType = $state("student");
 
-	function doLogin() {
-		console.log('login called');
-		userState.userType = userType;
-		goto('/');
-	}
+function doLogin() {
+	console.log("login called");
+	userState.userType = userType;
+	goto("/");
+}
 </script>
 
 <div class="grid h-dvh w-dvw place-items-center">

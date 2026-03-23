@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { Modal, Label, Input, Radio, Button, Checkbox } from 'flowbite-svelte';
+import { Button, Input, Label, Modal, Radio } from "flowbite-svelte";
 
-	let { open = $bindable(false) } = $props();
+let { open = $bindable(false) } = $props();
 
-	let isActive = $state('true');
+let isActive = $state("true");
 
-	function close() {
-		open = false;
-	}
+function close() {
+	open = false;
+}
 </script>
 
 <Modal form bind:open size="xs">

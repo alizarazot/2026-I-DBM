@@ -1,8 +1,8 @@
 <script lang="ts">
-	let { children } = $props();
+let { children } = $props();
 
-	import { Navbar, NavBrand, ButtonGroup, Button, Avatar } from 'flowbite-svelte';
-	import { BellOutline } from 'flowbite-svelte-icons';
+import { Navbar, NavBrand, ButtonGroup, Button, Avatar } from "flowbite-svelte";
+import { BellOutline } from "flowbite-svelte-icons";
 </script>
 
 <Navbar>
