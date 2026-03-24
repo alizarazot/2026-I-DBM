@@ -11,7 +11,6 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	signInEmail: async (event) => {
-		console.log("Sign in in");
 		const formData = await event.request.formData();
 		const email = formData.get("email")?.toString() ?? "";
 		const password = formData.get("password")?.toString() ?? "";
