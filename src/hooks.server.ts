@@ -1,9 +1,32 @@
 import type { Handle } from "@sveltejs/kit";
+import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from "$app/environment";
 import { auth } from "$lib/server/auth";
-import { svelteKitHandler } from "better-auth/svelte-kit";
+
+let initialized = false;
 
 const handleBetterAuth: Handle = async ({ event, resolve }) => {
+	if (!initialized) {
+		initialized = true;
+		try {
+			await auth.api.signUpEmail({
+				body: {
+					name: "Manager (Localhost)",
+					email: "manager@localhost.app",
+					password: "manager@localhost.app",
+					role: "manager",
+					document: "",
+					lastname: "",
+					phone: "",
+					isActive: true,
+				},
+			});
+			console.log("Root manager user created!");
+		} catch (error) {
+			console.log("Root manager user already exists, skipping creation");
+		}
+	}
+
 	const session = await auth.api.getSession({ headers: event.request.headers });
 
 	if (session) {
