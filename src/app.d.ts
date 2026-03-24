@@ -1,6 +1,12 @@
+import type { User, Session } from "better-auth/minimal";
+
 declare global {
 	namespace App {
-		// interface Locals {}
+		interface Locals {
+			user?: User;
+			session?: Session;
+		}
+
 		// interface Error {}
 		// interface PageData {}
 		// interface PageState {}
@@ -46,7 +52,6 @@ declare module "simple-datatables" {
 
 	export interface SelectableDataRow {
 		selected?: boolean;
-
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		[key: string]: any;
 	}
