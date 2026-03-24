@@ -1,7 +1,6 @@
-
 declare global {
 	namespace App {
-		//interface Locals {}
+		// interface Locals {}
 		// interface Error {}
 		// interface PageData {}
 		// interface PageState {}
@@ -47,6 +46,8 @@ declare module "simple-datatables" {
 
 	export interface SelectableDataRow {
 		selected?: boolean;
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		[key: string]: any;
 	}
 }

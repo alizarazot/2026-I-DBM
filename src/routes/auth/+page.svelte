@@ -1,21 +1,22 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
 import {
+	Button,
+	ButtonGroup,
 	Input,
 	Label,
-	ButtonGroup,
 	RadioButton,
-	Button,
 } from "flowbite-svelte";
+import { goto } from "$app/navigation";
 import { userState } from "$lib/user.svelte.ts";
 
-let email = $state();
-let password = $state();
-let userType = $state("student");
+const email = $state();
+const password = $state();
+const userType = $state("student");
 
 function doLogin() {
 	console.log("login called");
 	userState.userType = userType;
+	// eslint-disable-next-line svelte/no-navigation-without-resolve
 	goto("/");
 }
 </script>

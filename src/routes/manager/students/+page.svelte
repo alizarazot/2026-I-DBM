@@ -7,7 +7,7 @@ let showRegister = $state(false);
 </script>
 
 <header class="flex justify-end px-3">
-	<Button onclick={(_: any) => (showRegister = true)}>Registrar estudiante</Button>
+	<Button onclick={() => (showRegister = true)}>Registrar estudiante</Button>
 </header>
 
 <Register bind:open={showRegister} />
