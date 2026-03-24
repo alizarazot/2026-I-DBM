@@ -1,14 +1,13 @@
-<script>
-import { goto } from "$app/navigation";
-import { userState } from "$lib/user.svelte";
+<script lang="ts">
+import { enhance } from "$app/forms";
+import type { PageServerData } from "./$types";
 
-$effect(() => {
-	if (userState.userType == null) {
-		// eslint-disable-next-line svelte/no-navigation-without-resolve
-		goto("/auth");
-	} else {
-		// eslint-disable-next-line svelte/no-navigation-without-resolve
-		goto(`/${userState.userType}`);
-	}
-});
+let { data } = $props<{ data: PageServerData }>();
 </script>
+
+Hi, {data.user.name}
+
+
+<form method="post" action="/auth?/signOut" use:enhance>
+  <button> Sign Out </button>
+</form>
