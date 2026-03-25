@@ -1,15 +1,39 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions, PageServerLoad } from "./$types";
-import { auth } from "$lib/server/auth";
 import { APIError } from "better-auth/api";
+import { auth } from "$lib/server/auth";
+import { db } from "$lib/server/database";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async (event) => {
+export const load: PageServerLoad = async (event: any) => {
 	if (event.locals.user) {
 		return redirect(302, "/");
 	}
 };
 
 export const actions: Actions = {
+	updateUser: async (event) => {
+		const formData = await event.request.formData();
+		try {
+			await auth.api.adminUpdateUser({
+				body: {
+					userId: formData.get("id")?.toString() ?? "",
+					data: {
+						name: formData.get("firstName")?.toString() ?? "",
+						email: formData.get("email")?.toString() ?? "",
+						lastName: formData.get("lastName")?.toString() ?? "",
+						document: formData.get("document")?.toString() ?? "",
+						phone: formData.get("phone")?.toString() ?? "",
+					},
+				},
+				headers: event.request.headers,
+			});
+		} catch (error) {
+			if (error instanceof APIError) {
+				return fail(400, { message: error.message || "Signin failed" });
+			}
+			return fail(500, { message: "Unexpected error" });
+		}
+	},
 	addManager: async (event) => {
 		const formData = await event.request.formData();
 		try {
