@@ -13,18 +13,16 @@ const dataTableOptions: DataTableOptions = {
 			"Correo electrónico",
 			"Documento",
 			"Teléfono",
-			"¿Está activo?",
 		],
 		data: users
-			.filter((user) => user.subrole === role)
+			.filter((user) => user.role === role)
 			.map((user) => [
 				user.id,
 				user.name,
-				user.lastname,
+				user.lastName,
 				user.email,
 				user.document,
 				user.phone,
-				user.isActive ? "Sí" : "No",
 			]),
 	},
 
