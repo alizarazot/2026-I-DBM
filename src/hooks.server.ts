@@ -12,13 +12,13 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 			await auth.api.createUser({
 				body: {
 					name: "Manager",
-					email: "manager@localhost.app",
-					password: "manager@localhost.app",
+					email: "manager@local.app",
+					password: "manager@local.app",
 					role: "manager",
 					data: {
-						lastName: "(Default)",
-						document: "",
-						phone: "",
+						lastName: "N/A",
+						document: "N/A",
+						phone: "N/A",
 					},
 				},
 			});
