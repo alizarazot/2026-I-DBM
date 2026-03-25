@@ -1,56 +1,55 @@
 <script lang="ts">
 import { Button, Input, Label, Modal, Radio } from "flowbite-svelte";
 
-let { open = $bindable(false) } = $props();
+import { enhance } from "$app/forms";
 
-let isActive = $state("true");
+let { openKind = $bindable(null), role } = $props();
+let open = $derived(openKind != null);
 
-function close() {
-	open = false;
-}
+let errorMsg = $state();
 </script>
 
-<Modal form bind:open size="xs">
-	<div class="flex flex-col space-y-6">
+<Modal bind:open={open} size="xs">
+		<form method=POST action="/auth?/addTeacher" use:enhance class="flex flex-col space-y-6">
 		<h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Registrar profesor</h3>
 
 		<Label class="space-y-2">
 			<span>Número de cédula de ciudadanía</span>
-			<Input type="number" />
+			<Input name=document type="number" required/>
 		</Label>
 
 		<div class="flex gap-2 space-y-2">
 			<Label class="grow">
-				<span>Nombre</span>
-				<Input />
+				<span>Nombres</span>
+				<Input name=name required/>
 			</Label>
 
 			<Label class="grow">
-				<span>Apellido</span>
-				<Input />
+				<span>Apellidos</span>
+				<Input name=lastname required />
 			</Label>
 		</div>
 
 		<div class="flex gap-2 space-y-2">
 			<Label class="grow">
 				<span>Correo electrónico</span>
-				<Input type="email" />
+				<Input name=email type="email" required />
 			</Label>
 
 			<Label class="grow">
 				<span>Teléfono</span>
-				<Input type="tel" />
+				<Input name=phone type="tel" required />
 			</Label>
 		</div>
 
 		<Label class="space-y-2">
 			<span>Especialidad</span>
-			<Input />
+			<Input name=speciality required />
 		</Label>
 
 		<Label class="space-y-2">
 			<span>Contraseña inicial</span>
-			<Input type="password" />
+			<Input name=password type="password" required/>
 		</Label>
 
 		<Label class="flex items-center gap-2 space-y-2">
@@ -59,12 +58,12 @@ function close() {
 				class="flex w-full items-center divide-x divide-gray-200 rounded-lg border border-gray-200"
 			>
 				<li class="w-full">
-					<Radio classes={{ label: 'p-3' }} name="is-active" value="true" bind:group={isActive}
+					<Radio classes={{ label: 'p-3' }} name="is-active" value="true" 
 						>Activo</Radio
 					>
 				</li>
 				<li class="w-full">
-					<Radio classes={{ label: 'p-3' }} name="is-active" value="false" bind:group={isActive}
+					<Radio classes={{ label: 'p-3' }} name="is-active" value="false"
 						>Inactivo</Radio
 					>
 				</li>
@@ -72,8 +71,9 @@ function close() {
 		</Label>
 
 		<div class="flex justify-end gap-2">
-			<Button onclick={close}>Cancelar</Button>
-			<Button onclick={close}>Guardar</Button>
+			<Button onclick={() => {openKind = null}}>Cancelar</Button>
+			<Button type="submit">Guardar</Button>
 		</div>
-	</div>
+		<p class="text-red-500">{errorMsg}</p>
+	</form>
 </Modal>

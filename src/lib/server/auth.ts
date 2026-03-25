@@ -1,5 +1,6 @@
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { betterAuth } from "better-auth/minimal";
+import { admin } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import { env } from "$env/dynamic/private";
@@ -12,7 +13,7 @@ export const auth = betterAuth({
 	user: {
 		modelName: "users",
 		additionalFields: {
-			role: {
+			subrole: {
 				type: ["manager", "teacher", "student"],
 				required: true,
 			},
@@ -43,5 +44,5 @@ export const auth = betterAuth({
 	},
 	database: mongodbAdapter(db),
 	emailAndPassword: { enabled: true },
-	plugins: [sveltekitCookies(getRequestEvent)],
+	plugins: [admin(), sveltekitCookies(getRequestEvent)],
 });
