@@ -7,6 +7,8 @@ let { openKind = $bindable(null), role } = $props();
 let open = $derived(openKind != null);
 let action = $derived.by(() => {
 	switch (role) {
+		case "manager":
+			return "/auth?/addManager";
 		case "teacher":
 			return "/auth?/addTeacher";
 		case "student":
@@ -17,6 +19,8 @@ let action = $derived.by(() => {
 });
 let registerLabel = $derived.by(() => {
 	switch (role) {
+		case "manager":
+			return "administrador";
 		case "teacher":
 			return "profesor";
 		case "student":
@@ -41,12 +45,12 @@ let errorMsg = $state();
 		<div class="flex gap-2 space-y-2">
 			<Label class="grow">
 				<span>Nombres</span>
-				<Input name=name required/>
+				<Input name=firstName required/>
 			</Label>
 
 			<Label class="grow">
 				<span>Apellidos</span>
-				<Input name=lastname required />
+				<Input name=lastName required />
 			</Label>
 		</div>
 
@@ -62,7 +66,7 @@ let errorMsg = $state();
 			</Label>
 		</div>
 
-		{#if role === "teacher"}
+		{#if false}
 		<Label class="space-y-2">
 			<span>Especialidad</span>
 			<Input name=speciality required />
@@ -74,6 +78,7 @@ let errorMsg = $state();
 			<Input name=password type="password" required/>
 		</Label>
 
+		{#if false}
 		<Label class="flex items-center gap-2 space-y-2">
 			<span class="m-0">Estado</span>
 			<ul
@@ -91,6 +96,7 @@ let errorMsg = $state();
 				</li>
 			</ul>
 		</Label>
+		{/if}
 
 		<div class="flex justify-end gap-2">
 			<Button onclick={() => {openKind = null}}>Cancelar</Button>

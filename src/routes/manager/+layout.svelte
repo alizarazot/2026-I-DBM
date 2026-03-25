@@ -7,6 +7,7 @@ const { children } = $props();
 
 const sections = {
 	courses: "Cursos",
+	managers: "Administradores",
 	teachers: "Profesores",
 	students: "Estudiantes",
 };

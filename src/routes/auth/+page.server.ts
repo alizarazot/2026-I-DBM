@@ -10,22 +10,42 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
+	addManager: async (event) => {
+		const formData = await event.request.formData();
+		try {
+			await auth.api.createUser({
+				body: {
+					name: formData.get("firstName")?.toString() ?? "",
+					email: formData.get("email")?.toString() ?? "",
+					password: formData.get("password")?.toString() ?? "",
+					role: "manager",
+					data: {
+						lastName: formData.get("lastName")?.toString() ?? "",
+						document: formData.get("document")?.toString() ?? "",
+						phone: formData.get("phone")?.toString() ?? "",
+					},
+				},
+			});
+		} catch (error) {
+			if (error instanceof APIError) {
+				return fail(400, { message: error.message || "Signin failed" });
+			}
+			return fail(500, { message: "Unexpected error" });
+		}
+	},
 	addTeacher: async (event) => {
 		const formData = await event.request.formData();
 		try {
 			await auth.api.createUser({
 				body: {
-					name: formData.get("name")?.toString() ?? "",
+					name: formData.get("firstName")?.toString() ?? "",
 					email: formData.get("email")?.toString() ?? "",
 					password: formData.get("password")?.toString() ?? "",
-					role: "user",
+					role: "teacher",
 					data: {
-						lastname: formData.get("lastname")?.toString() ?? "",
-						subrole: "teacher",
+						lastName: formData.get("lastName")?.toString() ?? "",
 						document: formData.get("document")?.toString() ?? "",
 						phone: formData.get("phone")?.toString() ?? "",
-						isActive:
-							(formData.get("isActive")?.toString() ?? "false") === "true",
 					},
 				},
 			});
@@ -41,17 +61,14 @@ export const actions: Actions = {
 		try {
 			await auth.api.createUser({
 				body: {
-					name: formData.get("name")?.toString() ?? "",
+					name: formData.get("firstName")?.toString() ?? "",
 					email: formData.get("email")?.toString() ?? "",
 					password: formData.get("password")?.toString() ?? "",
-					role: "user",
+					role: "student",
 					data: {
-						lastname: formData.get("lastname")?.toString() ?? "",
-						subrole: "student",
+						lastName: formData.get("lastName")?.toString() ?? "",
 						document: formData.get("document")?.toString() ?? "",
 						phone: formData.get("phone")?.toString() ?? "",
-						isActive:
-							(formData.get("isActive")?.toString() ?? "false") === "true",
 					},
 				},
 			});
