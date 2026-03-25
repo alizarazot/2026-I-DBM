@@ -25,12 +25,14 @@ async function deleteUser() {
 }
 </script>
 
-<header class="flex justify-end px-3">
+<header class="flex justify-end px-3 gap-2 me-1">
 	<Button onclick={() => {registerOpenKind = "register"}}>Registrar estudiante</Button>
 	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
 	<Button disabled={currentId === ""} onclick={deleteUser}>Eliminar</Button>
 </header>
 
-
 <Register role="student" bind:openKind={registerOpenKind} bind:updateId={currentId} />
+
+<div class="m-4 mt-0">
 <UsersTable role="student" users={data.users} onSelection={(id: string)=>{currentId=id}}/>
+</div>

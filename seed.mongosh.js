@@ -6,7 +6,7 @@ const passwordHash =
 
 const newUsers = [
 	{
-		fullName: "Alice Johnson",
+		firstName: "Alice",
 		email: "alice.j@example.com",
 		role: "student",
 		lastName: "Johnson",
@@ -14,7 +14,7 @@ const newUsers = [
 		phone: "555-0101",
 	},
 	{
-		fullName: "Robert Smith",
+		firstName: "Robert",
 		email: "r.smith@academy.edu",
 		role: "teacher",
 		lastName: "Smith",
@@ -22,7 +22,7 @@ const newUsers = [
 		phone: "555-0102",
 	},
 	{
-		fullName: "Elena Rodriguez",
+		firstName: "Elena",
 		email: "elena.admin@local.app",
 		role: "manager",
 		lastName: "Rodriguez",
@@ -30,7 +30,7 @@ const newUsers = [
 		phone: "555-0103",
 	},
 	{
-		fullName: "Kevin Zhang",
+		firstName: "Kevin",
 		email: "kzhang@student.net",
 		role: "student",
 		lastName: "Zhang",
@@ -38,7 +38,7 @@ const newUsers = [
 		phone: "555-0104",
 	},
 	{
-		fullName: "Sarah Miller",
+		firstName: "Sarah",
 		email: "s.miller@teacher.com",
 		role: "teacher",
 		lastName: "Miller",
@@ -46,7 +46,7 @@ const newUsers = [
 		phone: "555-0105",
 	},
 	{
-		fullName: "Lucia Fernandez",
+		firstName: "Lucia",
 		email: "lucia.f@example.org",
 		role: "student",
 		lastName: "Fernandez",
@@ -54,7 +54,7 @@ const newUsers = [
 		phone: "555-0107",
 	},
 	{
-		fullName: "Marcus Brown",
+		firstName: "Marcus",
 		email: "m.brown@manager.net",
 		role: "manager",
 		lastName: "Brown",
@@ -62,7 +62,7 @@ const newUsers = [
 		phone: "555-0108",
 	},
 	{
-		fullName: "James Taylor",
+		firstName: "James",
 		email: "jtaylor@academy.edu",
 		role: "teacher",
 		lastName: "Taylor",
@@ -70,7 +70,7 @@ const newUsers = [
 		phone: "555-0110",
 	},
 	{
-		fullName: "Thomas Anderson",
+		firstName: "Thomas",
 		email: "t.anderson@student.io",
 		role: "student",
 		lastName: "Anderson",
@@ -78,7 +78,7 @@ const newUsers = [
 		phone: "555-0112",
 	},
 	{
-		fullName: "Sophia White",
+		firstName: "Sophia",
 		email: "swhite@teacher.com",
 		role: "teacher",
 		lastName: "White",
@@ -86,7 +86,7 @@ const newUsers = [
 		phone: "555-0113",
 	},
 	{
-		fullName: "Daniel Lee",
+		firstName: "Daniel",
 		email: "d.lee@local.app",
 		role: "manager",
 		lastName: "Lee",
@@ -94,7 +94,7 @@ const newUsers = [
 		phone: "555-0114",
 	},
 	{
-		fullName: "Emma Watson",
+		firstName: "Emma",
 		email: "ewatson@student.com",
 		role: "student",
 		lastName: "Watson",
@@ -102,7 +102,7 @@ const newUsers = [
 		phone: "555-0115",
 	},
 	{
-		fullName: "Carlos Ruiz",
+		firstName: "Carlos",
 		email: "cruiz@edu.co",
 		role: "teacher",
 		lastName: "Ruiz",
@@ -110,7 +110,7 @@ const newUsers = [
 		phone: "555-0116",
 	},
 	{
-		fullName: "Hannah Abbott",
+		firstName: "Hannah",
 		email: "habbott@study.net",
 		role: "student",
 		lastName: "Abbott",
@@ -118,7 +118,7 @@ const newUsers = [
 		phone: "555-0117",
 	},
 	{
-		fullName: "Victor Vance",
+		firstName: "Victor",
 		email: "vvance@manager.org",
 		role: "manager",
 		lastName: "Vance",
@@ -133,11 +133,11 @@ const newUsers = [
 	updatedAt: new Date(),
 }));
 
-// 1. Insert Users
+// 1. Insert Users into "users" collection
 const userResult = db.getCollection("users").insertMany(newUsers);
 const userIds = Object.values(userResult.insertedIds);
 
-// 2. Map Accounts to those User IDs
+// 2. Create matching entries for "user_accounts"
 const accounts = userIds.map((id) => ({
 	accountId: id.toString(),
 	providerId: "credential",
@@ -147,9 +147,7 @@ const accounts = userIds.map((id) => ({
 	updatedAt: new Date(),
 }));
 
-// 3. Insert Accounts
+// 3. Insert into "user_accounts" collection
 db.getCollection("user_accounts").insertMany(accounts);
 
-print(
-	"Successfully created 15 users and 15 corresponding account credentials.",
-);
+print("Done! 15 users (with 'firstName') and their login credentials created.");
