@@ -22,6 +22,7 @@ async function deleteCourse() {
 }
 </script>
 
+<div class="flex flex-col h-full overflow-y-hidden">
 <header class="flex justify-end px-3 gap-2 me-1">
 	<Button onclick={() => {registerOpenKind = "register"}}>Añadir curso</Button>
 	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
@@ -30,6 +31,7 @@ async function deleteCourse() {
 
 <Register users={data.users} bind:openKind={registerOpenKind} bind:updateId={currentId} />
 
-<div class="m-4 mt-0">
+<div class="mx-4 pb-4 overflow-y-auto grow h-full">
 <CoursesTable users={data.users} courses={data.courses} onSelection={(id: string)=>{currentId=id}}/>
+</div>
 </div>

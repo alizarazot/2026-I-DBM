@@ -29,6 +29,8 @@ async function signOut() {
 }
 </script>
 
+<div class="flex h-dvh flex-col overflow-y-hidden">
+	<div class="grow">
 <Navbar>
 	<NavBrand>
 		<span>Administrador</span>
@@ -53,5 +55,9 @@ async function signOut() {
 		</Dropdown>
 	</div>
 </Navbar>
+</div>
 
-{@render children()}
+<div class="grow h-full">
+	{@render children()}
+</div>
+</div>
