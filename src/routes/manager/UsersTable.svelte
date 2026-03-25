@@ -25,6 +25,8 @@ const dataTableOptions = $derived({
 				user.phone,
 			]),
 	},
+	paging: false,
+	searchable: false,
 	rowRender: (row: any, tr: any, _index: number) => {
 		if (!tr.attributes) {
 			tr.attributes = {};

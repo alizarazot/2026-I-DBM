@@ -3,7 +3,7 @@ import { page } from "$app/state";
 
 import { Navbar, NavBrand, ButtonGroup, Button, Avatar } from "flowbite-svelte";
 
-const { children } = $props();
+const { children, data } = $props();
 
 const sections = {
 	courses: "Cursos",
@@ -24,7 +24,10 @@ const sections = {
 		{/each}
 	</ButtonGroup>
 
+	<div class="flex items-center gap-2">
+		<span>{data.user.name}</span>
 	<Avatar class="size-7" />
+	</div>
 </Navbar>
 
 {@render children()}
