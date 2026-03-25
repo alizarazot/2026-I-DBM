@@ -12,6 +12,9 @@ export const db = client.db("Plataforma-LINEA");
 export type Course = {
 	name: string;
 	description: string;
+	day: string;
+	startHour: string;
+	duration: number;
 	maxStudents: number;
 	teacherId: string;
 };

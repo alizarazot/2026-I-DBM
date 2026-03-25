@@ -22,6 +22,9 @@ export const load: PageServerLoad = async (event) => {
 			id: course._id.toString(),
 			name: course.name,
 			description: course.description,
+			day: course.day,
+			startHour: course.startHour,
+			duration: course.duration,
 			maxStudents: course.maxStudents,
 			teacherId: course.teacherId,
 		});
@@ -46,6 +49,9 @@ export const actions: Actions = {
 		const course: Course = {
 			name: formData.get("name")?.toString() ?? "",
 			description: formData.get("description")?.toString() ?? "",
+			day: formData.get("day")?.toString() ?? "",
+			startHour: formData.get("startHour")?.toString() ?? "",
+			duration: formData.get("duration")?.toString() ?? "",
 			maxStudents: parseInt(formData.get("maxStudents")?.toString() ?? "0"),
 			teacherId: formData.get("teacherId")?.toString() ?? "",
 		};
@@ -67,6 +73,9 @@ export const actions: Actions = {
 		const course: Course = {
 			name: formData.get("name")?.toString() ?? "",
 			description: formData.get("description")?.toString() ?? "",
+			day: formData.get("day")?.toString() ?? "",
+			startHour: formData.get("startHour")?.toString() ?? "",
+			duration: formData.get("duration")?.toString() ?? "",
 			maxStudents: parseInt(formData.get("maxStudents")?.toString() ?? "0"),
 			teacherId: formData.get("teacherId")?.toString() ?? "",
 		};
