@@ -5,13 +5,33 @@ import { enhance } from "$app/forms";
 
 let { openKind = $bindable(null), role } = $props();
 let open = $derived(openKind != null);
+let action = $derived.by(() => {
+	switch (role) {
+		case "teacher":
+			return "/auth?/addTeacher";
+		case "student":
+			return "/auth?/addStudent";
+		default:
+			throw Error("Invalid role");
+	}
+});
+let registerLabel = $derived.by(() => {
+	switch (role) {
+		case "teacher":
+			return "profesor";
+		case "student":
+			return "estudiante";
+		default:
+			throw Error("Invalid role");
+	}
+});
 
 let errorMsg = $state();
 </script>
 
 <Modal bind:open={open} size="xs">
-		<form method=POST action="/auth?/addTeacher" use:enhance class="flex flex-col space-y-6">
-		<h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Registrar profesor</h3>
+		<form method=POST action={action} use:enhance class="flex flex-col space-y-6">
+		<h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Registrar {registerLabel}</h3>
 
 		<Label class="space-y-2">
 			<span>Número de cédula de ciudadanía</span>
@@ -42,10 +62,12 @@ let errorMsg = $state();
 			</Label>
 		</div>
 
+		{#if role === "teacher"}
 		<Label class="space-y-2">
 			<span>Especialidad</span>
 			<Input name=speciality required />
 		</Label>
+		{/if}
 
 		<Label class="space-y-2">
 			<span>Contraseña inicial</span>
@@ -72,7 +94,7 @@ let errorMsg = $state();
 
 		<div class="flex justify-end gap-2">
 			<Button onclick={() => {openKind = null}}>Cancelar</Button>
-			<Button type="submit">Guardar</Button>
+			<Button type="submit">Registrar</Button>
 		</div>
 		<p class="text-red-500">{errorMsg}</p>
 	</form>
