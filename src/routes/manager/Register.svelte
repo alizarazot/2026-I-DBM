@@ -108,6 +108,7 @@ let errorMsg = $state();
 		<form method=POST action={action} use:enhance={()=>{ return async ({ result, update }) => {
         await invalidate("manager:users");
         await update();
+        openKind = null
     };}}
     class="flex flex-col space-y-6">
 
