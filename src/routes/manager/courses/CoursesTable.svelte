@@ -2,26 +2,43 @@
 import type { DataTableOptions } from "@flowbite-svelte-plugins/datatable";
 import { Table } from "@flowbite-svelte-plugins/datatable";
 
-const { courses } = $props();
+const { courses, users } = $props();
 
-console.log(courses);
+console.log(users, courses);
 
-const dataTableOptions: DataTableOptions = {
+const dataTableOptions = $derived({
 	data: {
-		headings: [
-			"Nombre",
-			"Descripción",
-			"Tipo",
-			"Cantidad máxima de estudiantes",
-		],
+		headings: ["Nombre", "Descripción", "Cupo", "Profesor"],
 		data: courses.map((course) => [
 			course.name,
 			course.description,
-			course.courseKind,
 			course.maxStudents,
+			(() => {
+				const teacher = users.find((user) => user.id === course.teacherId);
+				if (!teacher) return "N/A";
+				return `${teacher.name} ${teacher.lastName}`;
+			})(),
 		]),
 	},
-};
+	paging: false,
+	searchable: false,
+	rowRender: (row: any, tr: any, _index: number) => {
+		if (!tr.attributes) {
+			tr.attributes = {};
+		}
+		if (!tr.attributes.class) {
+			tr.attributes.class = "";
+		}
+		if (row.selected) {
+			tr.attributes.class += " selected";
+		} else {
+			tr.attributes.class = tr.attributes.class.replace(" selected", "");
+		}
+		return tr;
+	},
+}) satisfies DataTableOptions;
 </script>
 
-<Table {dataTableOptions} />
+{#key courses}
+<Table dataTableOptions={dataTableOptions} selectable multiSelect={false} />
+{/key}
