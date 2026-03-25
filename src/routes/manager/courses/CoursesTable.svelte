@@ -6,11 +6,23 @@ const { courses, users, onSelection } = $props();
 
 const dataTableOptions = $derived({
 	data: {
-		headings: ["ID", "Nombre", "Descripción", "Cupo", "Profesor"],
+		headings: [
+			"ID",
+			"Nombre",
+			"Descripción",
+			"Día",
+			"Hora",
+			"Duración",
+			"Cupo",
+			"Profesor",
+		],
 		data: courses.map((course) => [
 			course.id,
 			course.name,
 			course.description,
+			course.day,
+			course.startHour,
+			course.duration,
 			course.maxStudents,
 			(() => {
 				const teacher = users.find((user) => user.id === course.teacherId);
