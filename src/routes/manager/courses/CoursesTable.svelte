@@ -2,20 +2,25 @@
 import type { DataTableOptions } from "@flowbite-svelte-plugins/datatable";
 import { Table } from "@flowbite-svelte-plugins/datatable";
 
-import { courses } from "$lib/dummy-db.json";
+const { courses } = $props();
+
+console.log(courses);
 
 const dataTableOptions: DataTableOptions = {
 	data: {
-		headings: ["ID", "Nombre", "Descripción", "Docente", "Fecha creación"],
+		headings: [
+			"Nombre",
+			"Descripción",
+			"Tipo",
+			"Cantidad máxima de estudiantes",
+		],
 		data: courses.map((course) => [
-			course.id,
-			course.title,
+			course.name,
 			course.description,
-			course.teacherId,
-			new Date(course.createdAt).toLocaleDateString(),
+			course.courseKind,
+			course.maxStudents,
 		]),
 	},
-	columns: [{ select: 0, hidden: true }],
 };
 </script>
 

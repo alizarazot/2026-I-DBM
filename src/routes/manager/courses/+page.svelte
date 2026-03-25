@@ -4,6 +4,8 @@ import CoursesTable from "./CoursesTable.svelte";
 import Register from "./Register.svelte";
 
 let showRegister = $state(false);
+
+const { data } = $props();
 </script>
 
 <header class="flex justify-end px-3">
@@ -12,4 +14,4 @@ let showRegister = $state(false);
 
 <Register bind:open={showRegister} />
 
-<CoursesTable />
+<CoursesTable courses={data.courses}/>
