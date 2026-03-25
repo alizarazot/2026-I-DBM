@@ -3,15 +3,23 @@ import { Button } from "flowbite-svelte";
 import CoursesTable from "./CoursesTable.svelte";
 import Register from "./Register.svelte";
 
-let showRegister = $state(false);
+let currentId = $state("");
+
+let registerOpenKind = $state<"register" | "update" | null>(null);
 
 const { data } = $props();
+
+function deleteCourse() {}
 </script>
 
-<header class="flex justify-end px-3">
-	<Button onclick={() => (showRegister = true)}>Registrar curso</Button>
+<header class="flex justify-end px-3 gap-2 me-1">
+	<Button onclick={() => {registerOpenKind = "register"}}>Añadir curso</Button>
+	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
+	<Button disabled={currentId === ""} onclick={deleteCourse}>Eliminar</Button>
 </header>
 
-<Register bind:open={showRegister} />
+<Register users={data.users} bind:openKind={registerOpenKind} bind:updateId={currentId} />
 
-<CoursesTable courses={data.courses}/>
+<div class="m-4 mt-0">
+<CoursesTable users={data.users} courses={data.courses} onSelection={(id: string)=>{currentId=id}}/>
+</div>
