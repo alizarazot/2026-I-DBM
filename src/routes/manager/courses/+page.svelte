@@ -2,6 +2,7 @@
 import { Button } from "flowbite-svelte";
 import CoursesTable from "./CoursesTable.svelte";
 import Register from "./Register.svelte";
+import { invalidate } from "$app/navigation";
 
 let currentId = $state("");
 
@@ -9,7 +10,16 @@ let registerOpenKind = $state<"register" | "update" | null>(null);
 
 const { data } = $props();
 
-function deleteCourse() {}
+async function deleteCourse() {
+	const formData = new FormData();
+	formData.append("id", currentId);
+	await fetch("/manager/courses?/deleteCourse", {
+		method: "POST",
+		body: formData,
+	});
+	invalidate("manager:courses");
+	currentId = "";
+}
 </script>
 
 <header class="flex justify-end px-3 gap-2 me-1">

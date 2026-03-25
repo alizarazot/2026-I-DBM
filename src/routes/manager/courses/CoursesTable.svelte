@@ -2,14 +2,13 @@
 import type { DataTableOptions } from "@flowbite-svelte-plugins/datatable";
 import { Table } from "@flowbite-svelte-plugins/datatable";
 
-const { courses, users } = $props();
-
-console.log(users, courses);
+const { courses, users, onSelection } = $props();
 
 const dataTableOptions = $derived({
 	data: {
-		headings: ["Nombre", "Descripción", "Cupo", "Profesor"],
+		headings: ["ID", "Nombre", "Descripción", "Cupo", "Profesor"],
 		data: courses.map((course) => [
+			course.id,
 			course.name,
 			course.description,
 			course.maxStudents,
@@ -20,6 +19,7 @@ const dataTableOptions = $derived({
 			})(),
 		]),
 	},
+	columns: [{ select: 0, hidden: true }],
 	paging: false,
 	searchable: false,
 	rowRender: (row: any, tr: any, _index: number) => {
@@ -40,5 +40,5 @@ const dataTableOptions = $derived({
 </script>
 
 {#key courses}
-<Table dataTableOptions={dataTableOptions} selectable multiSelect={false} />
+<Table dataTableOptions={dataTableOptions} selectable multiSelect={false} onSelectRow={idx => onSelection(dataTableOptions.data.data[idx][0])} />
 {/key}
