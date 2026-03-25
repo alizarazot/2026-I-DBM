@@ -69,6 +69,15 @@ const teachers = $derived.by(() =>
 		})),
 );
 
+$effect(() => {
+	if (openKind === "register") {
+		name = "";
+		description = "";
+		maxStudents = "";
+		teacherId = "";
+	}
+});
+
 let errorMsg = $state();
 </script>
 
