@@ -21,13 +21,12 @@ async function signOut() {
 
 <Navbar>
 	<NavBrand>
-		<span>Estudiante</span>
+		<span>Profesor</span>
 	</NavBrand>
 
 	<ButtonGroup>
-		<Button href="/student/broadcast">Transmisión</Button>
-		<Button href="/student/tasks">Tareas</Button>
-		<Button href="/student/classes">Clases</Button>
+		<Button href="/teacher/broadcast">Transmisión</Button>
+		<Button href="/teacher/classes">Clases</Button>
 	</ButtonGroup>
 
 	<div class="flex items-center gap-2">
