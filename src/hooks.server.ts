@@ -9,16 +9,19 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	if (!initialized) {
 		initialized = true;
 		try {
-			await auth.api.signUpEmail({
+			await auth.api.createUser({
 				body: {
 					name: "Manager (Localhost)",
 					email: "manager@localhost.app",
 					password: "manager@localhost.app",
-					role: "manager",
-					document: "",
-					lastname: "",
-					phone: "",
-					isActive: true,
+					role: "admin",
+					data: {
+						lastname: "",
+						subrole: "manager",
+						document: "",
+						phone: "",
+						isActive: true,
+					},
 				},
 			});
 			console.log("Root manager user created!");

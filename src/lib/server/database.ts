@@ -7,4 +7,4 @@ if (!env.MONGODB_URI) {
 }
 const client = new MongoClient(env.MONGODB_URI);
 
-export const db = client.db();
+export const db = client.db("Plataforma-LINEA");

@@ -10,6 +10,32 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
+	addTeacher: async (event) => {
+		const formData = await event.request.formData();
+		try {
+			await auth.api.createUser({
+				body: {
+					name: formData.get("name")?.toString() ?? "",
+					email: formData.get("email")?.toString() ?? "",
+					password: formData.get("password")?.toString() ?? "",
+					role: "user",
+					data: {
+						lastname: formData.get("lastname")?.toString() ?? "",
+						subrole: "teacher",
+						document: formData.get("document")?.toString() ?? "",
+						phone: formData.get("phone")?.toString() ?? "",
+						isActive:
+							(formData.get("isActive")?.toString() ?? "false") === "true",
+					},
+				},
+			});
+		} catch (error) {
+			if (error instanceof APIError) {
+				return fail(400, { message: error.message || "Signin failed" });
+			}
+			return fail(500, { message: "Unexpected error" });
+		}
+	},
 	signInEmail: async (event) => {
 		const formData = await event.request.formData();
 		const email = formData.get("email")?.toString() ?? "";

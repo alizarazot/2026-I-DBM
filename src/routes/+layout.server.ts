@@ -10,7 +10,7 @@ export const load: PageServerLoad = async (event) => {
 	}
 
 	if (event.url.pathname === "/") {
-		switch (event.locals.user.role) {
+		switch (event.locals.user.subrole) {
 			case "manager":
 				return redirect(302, "/manager");
 			case "teacher":
