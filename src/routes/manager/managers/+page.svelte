@@ -10,15 +10,17 @@ import { TODO } from "$lib/todo";
 
 let { data }: PageData = $props();
 
-let registerOpenKind = $state<"register" | null>(null);
+let currentId = $state("");
+
+let registerOpenKind = $state<"register" | "update" | null>(null);
 </script>
 
 <header class="flex justify-end px-3">
-	<Button onclick={() => (registerOpenKind = "register")}>Registrar administrador</Button>
-	<Button onclick={TODO}>Editar</Button>
+	<Button onclick={() => {registerOpenKind = "register"}}>Registrar administrador</Button>
+	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
 	<Button onclick={TODO}>Eliminar</Button>
 </header>
 
 
-<Register role="manager" bind:openKind={registerOpenKind} />
-<UsersTable role="manager" users={data.users} />
+<Register role="manager" bind:openKind={registerOpenKind} bind:updateId={currentId} />
+<UsersTable role="manager" users={data.users} onSelection={(id: string)=>{currentId=id}}/>
