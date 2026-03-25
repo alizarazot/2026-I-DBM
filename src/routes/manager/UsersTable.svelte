@@ -42,10 +42,6 @@ const dataTableOptions = $derived({
 
 	columns: [{ select: 0, hidden: true }],
 }) satisfies DataTableOptions;
-
-$effect(() => {
-	console.log(dataTableOptions);
-});
 </script>
 
 {#key users}
