@@ -1,14 +1,15 @@
 <script lang="ts">
 import { Button } from "flowbite-svelte";
+import { invalidate } from "$app/navigation";
+import { downloadPdf } from "$lib/pdf";
 import CoursesTable from "./CoursesTable.svelte";
 import Register from "./Register.svelte";
-import { invalidate } from "$app/navigation";
 
 let currentId = $state("");
 
 let registerOpenKind = $state<"register" | "update" | null>(null);
 
-const { data } = $props();
+let { data } = $props();
 
 async function deleteCourse() {
 	const formData = new FormData();
@@ -20,6 +21,21 @@ async function deleteCourse() {
 	invalidate("manager:courses");
 	currentId = "";
 }
+
+function downloadTablePdf() {
+	downloadPdf(
+		"Cursos",
+		["Nombre", "Descripción", "Cupo", "Profesor"],
+		data.courses.map((c: any) => [
+			c.name,
+			c.description,
+			c.maxStudents,
+			data.users.find((u: any) => u.id === c.teacherId)?.name +
+				" " +
+				data.users.find((u: any) => u.id === c.teacherId)?.lastName || "N/A",
+		]),
+	);
+}
 </script>
 
 <div class="flex flex-col h-full overflow-y-hidden">
@@ -27,6 +43,7 @@ async function deleteCourse() {
 	<Button onclick={() => {registerOpenKind = "register"}}>Añadir curso</Button>
 	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
 	<Button disabled={currentId === ""} onclick={deleteCourse}>Eliminar</Button>
+	<Button onclick={downloadTablePdf}>PDF</Button>
 </header>
 
 <Register users={data.users} bind:openKind={registerOpenKind} bind:updateId={currentId} />

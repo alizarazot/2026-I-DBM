@@ -1,11 +1,10 @@
 <script lang="ts">
 import { Button } from "flowbite-svelte";
-
+import { invalidate } from "$app/navigation";
+import { downloadPdf } from "$lib/pdf";
+import type { PageData } from "../$types";
 import Register from "../Register.svelte";
 import UsersTable from "../UsersTable.svelte";
-
-import type { PageData } from "../$types";
-import { invalidate } from "$app/navigation";
 
 let { data }: PageData = $props();
 
@@ -23,12 +22,22 @@ async function deleteUser() {
 	invalidate("manager:users");
 	currentId = "";
 }
+
+function downloadTablePdf() {
+	const users = data.users.filter((user: any) => user.role === "teacher");
+	downloadPdf(
+		"Profesores",
+		["Nombres", "Apellidos", "Correo electrónico", "Documento", "Teléfono"],
+		users.map((u: any) => [u.name, u.lastName, u.email, u.document, u.phone]),
+	);
+}
 </script>
 
 <header class="flex justify-end px-3 gap-2 me-1">
 	<Button onclick={() => {registerOpenKind = "register"}}>Registrar profesores</Button>
 	<Button disabled={currentId === ""} onclick={() => {registerOpenKind = "update"}}>Editar</Button>
 	<Button disabled={currentId === ""} onclick={deleteUser}>Eliminar</Button>
+	<Button onclick={downloadTablePdf}>PDF</Button>
 </header>
 
 <Register role="teacher" bind:openKind={registerOpenKind} bind:updateId={currentId} />
