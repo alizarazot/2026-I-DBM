@@ -2,9 +2,13 @@
 import { Button } from "flowbite-svelte";
 
 import Register from "../Register.svelte";
-//import UsersTable from "../UsersTable.svelte";
+import UsersTable from "../UsersTable.svelte";
+
+import type { PageData } from "../$types";
 
 import { TODO } from "$lib/todo";
+
+let { data }: PageData = $props();
 
 let registerOpenKind = $state<"register" | null>(null);
 </script>
@@ -16,4 +20,5 @@ let registerOpenKind = $state<"register" | null>(null);
 </header>
 
 
-<Register role="teachers" bind:openKind={registerOpenKind} />
+<Register role="teacher" bind:openKind={registerOpenKind} />
+<UsersTable role="teacher" users={data.users} />
