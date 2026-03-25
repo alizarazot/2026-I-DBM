@@ -11,6 +11,22 @@ export const load: PageServerLoad = async (event: any) => {
 };
 
 export const actions: Actions = {
+	deleteUser: async (event) => {
+		const formData = await event.request.formData();
+		try {
+			await auth.api.removeUser({
+				body: {
+					userId: formData.get("id")?.toString() ?? "",
+				},
+				headers: event.request.headers,
+			});
+		} catch (error) {
+			if (error instanceof APIError) {
+				return fail(400, { message: error.message || "Signin failed" });
+			}
+			return fail(500, { message: "Unexpected error" });
+		}
+	},
 	updateUser: async (event) => {
 		const formData = await event.request.formData();
 		try {
