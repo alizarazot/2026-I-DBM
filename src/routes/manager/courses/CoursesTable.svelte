@@ -20,9 +20,26 @@ const dataTableOptions = $derived({
 			course.id,
 			course.name,
 			course.description,
-			course.day,
-			course.startHour,
-			course.duration,
+			(() => {
+				switch (course.day) {
+					case "monday":
+						return "Lunes";
+					case "tuesday":
+						return "Martes";
+					case "wednesday":
+						return "Miércoles";
+					case "thursday":
+						return "Jueves";
+					case "friday":
+						return "Viernes";
+					case "saturday":
+						return "Sábado";
+					default:
+						return "N/A";
+				}
+			})(),
+			course.startHour ?? "N/A",
+			course.duration ?? "N/A",
 			course.maxStudents,
 			(() => {
 				const teacher = users.find((user) => user.id === course.teacherId);
