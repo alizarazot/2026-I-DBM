@@ -6,11 +6,40 @@ const { courses, users, onSelection } = $props();
 
 const dataTableOptions = $derived({
 	data: {
-		headings: ["ID", "Nombre", "Descripción", "Cupo", "Profesor"],
+		headings: [
+			"ID",
+			"Nombre",
+			"Descripción",
+			"Día",
+			"Hora",
+			"Duración",
+			"Cupo",
+			"Profesor",
+		],
 		data: courses.map((course) => [
 			course.id,
 			course.name,
 			course.description,
+			(() => {
+				switch (course.day) {
+					case "monday":
+						return "Lunes";
+					case "tuesday":
+						return "Martes";
+					case "wednesday":
+						return "Miércoles";
+					case "thursday":
+						return "Jueves";
+					case "friday":
+						return "Viernes";
+					case "saturday":
+						return "Sábado";
+					default:
+						return "N/A";
+				}
+			})(),
+			course.startHour ?? "N/A",
+			course.duration ?? "N/A",
 			course.maxStudents,
 			(() => {
 				const teacher = users.find((user) => user.id === course.teacherId);

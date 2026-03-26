@@ -6,6 +6,15 @@ let { openKind = $bindable(null), updateId = $bindable(""), users } = $props();
 
 let open = $state(false);
 
+const days = [
+	{ value: "monday", name: "Lunes" },
+	{ value: "tuesday", name: "Martes" },
+	{ value: "wednesday", name: "Miércoles" },
+	{ value: "thursday", name: "Jueves" },
+	{ value: "friday", name: "Viernes" },
+	{ value: "saturday", name: "Sábado" },
+];
+
 $effect(() => {
 	open = openKind != null;
 });
@@ -34,6 +43,9 @@ let actionLabel = $derived.by(() => {
 
 let name = $state("");
 let description = $state("");
+let day = $state("");
+let startHour = $state("");
+let duration = $state("");
 let maxStudents = $state("");
 let teacherId = $state("");
 
@@ -56,6 +68,9 @@ $effect(() => {
 		const course = result.data!.course as any;
 		name = course.name;
 		description = course.description;
+		day = course.day;
+		startHour = course.startHour;
+		duration = course.duration;
 		maxStudents = course.maxStudents;
 		teacherId = course.teacherId;
 	})();
@@ -73,6 +88,9 @@ $effect(() => {
 	if (openKind === "register") {
 		name = "";
 		description = "";
+		day = "";
+		startHour = "";
+		duration = "";
 		maxStudents = "";
 		teacherId = "";
 	}
@@ -98,6 +116,21 @@ let errorMsg = $state();
 			<span>Descripción</span>
 			<Input name=description maxlength={200} required bind:value={description}/>
 		</Label>
+
+		<div class="flex space-y-2 gap-2">
+			<Label class="w-xl">
+				<span> Día </span>
+				<Select name=day items={days} placeholder="Seleccionar" bind:value={day}/>
+			</Label>
+			<Label>
+				<span> Hora </span>
+				<Input type=time name=startHour bind:value={startHour}/>
+			</Label>
+			<Label>
+				<span> Duración </span>
+				<Input name=duration type=number bind:value={duration}/>
+			</Label>
+		</div>
 
 		<Label class="space-y-2">
 			<span>Cantidad máxima de estudiantes</span>

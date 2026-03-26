@@ -26,7 +26,7 @@ async function signOut() {
 
 	<ButtonGroup>
 		<Button href="/teacher/broadcast">Transmisión</Button>
-		<Button href="/teacher/classes">Clases</Button>
+		<Button href="/teacher/courses">Cursos</Button>
 	</ButtonGroup>
 
 	<div class="flex items-center gap-2">
