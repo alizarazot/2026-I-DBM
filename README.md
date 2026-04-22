@@ -2,21 +2,6 @@
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-bun x sv@0.12.7 create --template demo --types ts --add prettier eslint sveltekit-adapter="adapter:node" better-auth="demo:password" drizzle="database:sqlite+sqlite:libsql" --install bun .
-```
 
 ## Developing
 
@@ -40,3 +25,7 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Credits
+
+- <https://cptcrunchy.medium.com/how-to-build-a-voice-recorder-with-sveltekit-d331e3e94af6>.

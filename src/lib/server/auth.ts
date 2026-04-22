@@ -11,8 +11,8 @@ import { db } from "$lib/server/database";
 const baseURL = env.BETTER_AUTH_URL || "http://localhost:5173";
 
 const statement = {
-	...defaultStatements,
-	project: [],
+  ...defaultStatements,
+  project: [],
 } as const;
 const ac = createAccessControl(statement);
 
@@ -21,45 +21,45 @@ const teacher = ac.newRole({ project: [] });
 const student = ac.newRole({ project: [] });
 
 export const auth = betterAuth({
-	baseURL,
-	user: {
-		modelName: "users",
-		fields: {
-			name: "firstName",
-		},
-		additionalFields: {
-			document: {
-				type: "string",
-				required: true,
-			},
-			lastName: {
-				type: "string",
-				required: true,
-			},
-			phone: {
-				type: "string",
-				required: true,
-			},
-		},
-	},
-	session: {
-		modelName: "user_sessions",
-	},
-	account: {
-		modelName: "user_accounts",
-	},
-	database: mongodbAdapter(db),
-	emailAndPassword: { enabled: true },
-	plugins: [
-		admin({
-			ac,
-			adminRoles: ["manager"],
-			roles: {
-				manager,
-				teacher,
-				student,
-			},
-		}),
-		sveltekitCookies(getRequestEvent),
-	],
+  baseURL,
+  user: {
+    modelName: "users",
+    fields: {
+      name: "firstName",
+    },
+    additionalFields: {
+      document: {
+        type: "string",
+        required: true,
+      },
+      lastName: {
+        type: "string",
+        required: true,
+      },
+      phone: {
+        type: "string",
+        required: true,
+      },
+    },
+  },
+  session: {
+    modelName: "user_sessions",
+  },
+  account: {
+    modelName: "user_accounts",
+  },
+  database: mongodbAdapter(db),
+  emailAndPassword: { enabled: true },
+  plugins: [
+    admin({
+      ac,
+      adminRoles: ["manager"],
+      roles: {
+        manager,
+        teacher,
+        student,
+      },
+    }),
+    sveltekitCookies(getRequestEvent),
+  ],
 });
