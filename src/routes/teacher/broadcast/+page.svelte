@@ -46,13 +46,13 @@
 			console.info('Sending PCM data...', 'Length:', pcm.length);
 
 			try {
-			const resp = await fetch('/broadcast/process-pcm', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/octet-stream'
-				},
-				body: pcm
-			});
+				const resp = await fetch('/broadcast/process-pcm', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/octet-stream'
+					},
+					body: pcm
+				});
 
 				const json = (await resp.json()).text;
 				transcription.set(json.line, json.text);

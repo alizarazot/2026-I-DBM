@@ -11,7 +11,7 @@ class PcmExtractor extends AudioWorkletProcessor {
             return true
         }
 
-        if (pcmBuffer.length >= 16000 * 2 ) {
+        if (pcmBuffer.length >= 16000*2 ) {
             console.info("Sending...", "Length:", pcmBuffer.length);
             this.port.postMessage(pcmBuffer.buffer, [pcmBuffer.buffer])
             pcmBuffer = new Float32Array();
