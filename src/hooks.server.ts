@@ -6,36 +6,36 @@ import { auth } from "$lib/server/auth";
 let initialized = false;
 
 const handleBetterAuth: Handle = async ({ event, resolve }) => {
-	if (!initialized) {
-		initialized = true;
-		try {
-			await auth.api.createUser({
-				body: {
-					name: "Manager",
-					email: "manager@local.app",
-					password: "manager@local.app",
-					role: "manager",
-					data: {
-						lastName: "N/A",
-						document: "N/A",
-						phone: "N/A",
-					},
-				},
-			});
-			console.log("Root manager user created!");
-		} catch (error) {
-			console.log("Root manager user already exists, skipping creation");
-		}
-	}
+  if (!initialized) {
+    initialized = true;
+    try {
+      await auth.api.createUser({
+        body: {
+          name: "Manager",
+          email: "manager@local.app",
+          password: "manager@local.app",
+          role: "manager",
+          data: {
+            lastName: "N/A",
+            document: "N/A",
+            phone: "N/A",
+          },
+        },
+      });
+      console.log("Root manager user created!");
+    } catch (error) {
+      console.log("Root manager user already exists, skipping creation");
+    }
+  }
 
-	const session = await auth.api.getSession({ headers: event.request.headers });
+  const session = await auth.api.getSession({ headers: event.request.headers });
 
-	if (session) {
-		event.locals.session = session.session;
-		event.locals.user = session.user;
-	}
+  if (session) {
+    event.locals.session = session.session;
+    event.locals.user = session.user;
+  }
 
-	return svelteKitHandler({ event, resolve, auth, building });
+  return svelteKitHandler({ event, resolve, auth, building });
 };
 
 export const handle: Handle = handleBetterAuth;
