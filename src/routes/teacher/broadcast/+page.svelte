@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Button } from 'flowbite-svelte';
+
+	import { Timeline, TimelineItem, Button } from 'flowbite-svelte';
 
 	import { uuidV4AsString } from '$lib/uuid';
 
@@ -9,6 +10,8 @@
 	const CURRENT_SESSION_ID = uuidV4AsString();
 
 	const SAMPLE_UPLOAD_WAIT = 1000; // In milliseconds.
+
+	let lines = $state([]);
 
 	let audioContext: AudioContext;
 	onMount(async function () {
@@ -64,7 +67,8 @@
 					},
 					body: buffer
 				});
-				console.log('D! req answ', await req.json());
+
+				lines = await req.json();
 			} catch (e) {
 				console.log('The server rejected the PCM data!', e);
 			}
@@ -83,5 +87,15 @@
 	}
 </script>
 
-<Button onclick={startRecording}>Start</Button>
-<Button onclick={stopRecording}>Stop</Button>
+<div class="flex h-full flex-col">
+	<Timeline class="m-8 grow overflow-y-scroll">
+		{#each lines as line}
+			<TimelineItem title={line} date=""><p></p></TimelineItem>
+		{/each}
+	</Timeline>
+
+	<div class="m-4 flex justify-center gap-4">
+		<Button onclick={startRecording}>Transmitir</Button>
+		<Button onclick={stopRecording}>Detener</Button>
+	</div>
+</div>

@@ -1,7 +1,5 @@
 import { auth } from '$lib/server/auth';
-import { collectionCourses } from '$lib/server/database';
 import type { Actions } from '@sveltejs/kit';
-import { ObjectId } from 'mongodb';
 
 export const actions: Actions = {
 	getUser: async (event) => {
