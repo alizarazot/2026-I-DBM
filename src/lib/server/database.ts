@@ -21,3 +21,4 @@ export type Course = {
 
 export const collectionCourses = db.collection('courses');
 export const collectionTranscriptions = db.collection('transcriptions');
+export const collectionQuestions = db.collection('questions');

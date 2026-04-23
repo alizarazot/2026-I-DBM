@@ -4,14 +4,23 @@
 
 	let lines = $state([]);
 
+	let currentQuestion = $state<any>({});
+
 	const updateLines = async () => {
 		const req = await fetch('/broadcast/process-pcm');
 		lines = await req.json();
 		setTimeout(updateLines, 1000);
 	};
 
+	const updateQuestion = async () => {
+		const resp = await fetch('/student/broadcast/questions');
+		currentQuestion = await resp.json();
+		setTimeout(updateQuestion, 1000);
+	};
+
 	onMount(() => {
 		updateLines();
+		updateQuestion();
 	});
 </script>
 
@@ -22,5 +31,15 @@
 		{/each}
 	</Timeline>
 
-	<div></div>
+	{#if currentQuestion.question}
+		<div>
+			<h1>{currentQuestion.question}</h1>
+			<ul>
+				<li>- {currentQuestion.correctAnswer}</li>
+				{#each currentQuestion.badAnswers as answer}
+					<li>- {answer.answer}</li>
+				{/each}
+			</ul>
+		</div>
+	{/if}
 </div>
