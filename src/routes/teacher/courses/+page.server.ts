@@ -1,5 +1,4 @@
 import { collectionCourses } from '$lib/server/database';
-import type { Actions } from '@sveltejs/kit';
 
 export async function load({ locals }) {
 	const courses = [];

@@ -4,6 +4,8 @@ import { auth } from '$lib/server/auth';
 
 import type { RequestHandler } from './$types';
 
+import { collectionTranscriptions } from '$lib/server/database';
+
 export const POST: RequestHandler = async ({ request }) => {
 	const session = await auth.api.getSession({
 		headers: request.headers
@@ -28,5 +30,32 @@ export const POST: RequestHandler = async ({ request }) => {
 		body: await request.arrayBuffer()
 	});
 
-	return json(await currentTranscription.json());
+	const transcriptionLines = await currentTranscription.json();
+
+	collectionTranscriptions.updateOne(
+		{ sessionId: `${session.session.id}-${currentSessionId}` },
+		{
+			$set: {
+				lines: transcriptionLines,
+				updatedAt: new Date()
+			}
+		},
+		{ upsert: true }
+	);
+
+	return json(transcriptionLines);
+};
+
+export const GET: RequestHandler = async ({}) => {
+	const transcription = await collectionTranscriptions
+		.find()
+		.sort({ updatedAt: -1 })
+		.limit(1)
+		.next();
+
+	if (!transcription) {
+		return error(401, 'Not found');
+	}
+
+	return json(transcription.lines);
 };
