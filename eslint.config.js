@@ -25,10 +25,10 @@ export default defineConfig(
 			'no-undef': 'off',
 
 			// Taken from: <https://github.com/typescript-eslint/typescript-eslint/issues/8464#issue-2133743085>.
-			"@typescript-eslint/no-unused-vars": [
-            "error",
-            { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-        ],
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+			]
 		}
 	},
 	{
