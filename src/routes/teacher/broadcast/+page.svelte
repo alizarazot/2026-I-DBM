@@ -1,14 +1,18 @@
 <script lang="ts">
-	import { SvelteMap } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 	import { Button } from 'flowbite-svelte';
 
+	import { uuidV4AsString } from '$lib/uuid';
+
 	const SAMPLE_RATE = 16000;
 
-	const transcription = new SvelteMap();
+	const CURRENT_SESSION_ID = uuidV4AsString();
+
+	const SAMPLE_UPLOAD_WAIT = 1000; // In milliseconds.
 
 	let audioContext: AudioContext;
 	onMount(async function () {
+		// TODO: Handle deny of the mic.
 		audioContext = new AudioContext({
 			sampleRate: SAMPLE_RATE
 		});
@@ -19,48 +23,56 @@
 		const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1 } });
 		const inputAudio = audioContext.createMediaStreamSource(stream);
 
-		let pcmBuffer = new Float32Array();
+		// TODO: Consider working with `ArrayBuffer` directly.
+		const pcmQueue: Float32Array[] = [];
+
 		extractor.port.onmessage = async function (evt) {
-			pcmBuffer = new Float32Array([...pcmBuffer, ...new Float32Array(evt.data)]);
-			console.info('Received...', 'New length:', pcmBuffer.length);
+			pcmQueue.push(new Float32Array(evt.data));
 		};
 
 		inputAudio.connect(extractor);
 		extractor.connect(audioContext.destination);
 
-		let stillProcessing = false;
-		setInterval(async () => {
-			if (stillProcessing) {
-				return;
-			}
-			stillProcessing = true;
-
-			const pcm = new Float32Array([...pcmBuffer]);
-			pcmBuffer = new Float32Array();
-
-			if (pcm.length == 0) {
-				stillProcessing = false;
+		const sendSamples = async () => {
+			const samplesToSend = pcmQueue.length;
+			if (samplesToSend == 0) {
+				setTimeout(sendSamples, SAMPLE_UPLOAD_WAIT);
 				return;
 			}
 
-			console.info('Sending PCM data...', 'Length:', pcm.length);
+			let bufferSize = 0;
+			for (let i = 0; i < samplesToSend; i++) {
+				bufferSize += pcmQueue[i].length;
+			}
+
+			const buffer = new Float32Array(bufferSize);
+			let bufferOffset = 0;
+			for (let i = 0; i < samplesToSend; i++) {
+				const pcm = pcmQueue.shift()!;
+				buffer.set(pcm, bufferOffset);
+				bufferOffset += pcm.length;
+			}
+
+			console.assert(buffer.length > 0, 'The buffer is empty!');
 
 			try {
-				const resp = await fetch('/broadcast/process-pcm', {
+				const req = await fetch('/broadcast/process-pcm', {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/octet-stream'
+						'Content-Type': 'application/octet-stream',
+						'X-Current-Session-Id': CURRENT_SESSION_ID
 					},
-					body: pcm
+					body: buffer
 				});
-
-				const json = (await resp.json()).text;
-				transcription.set(json.line, json.text);
+				console.log('D! req answ', await req.json());
 			} catch (e) {
-			} finally {
-				stillProcessing = false;
+				console.log('The server rejected the PCM data!', e);
 			}
-		}, 2000);
+
+			setTimeout(sendSamples, SAMPLE_UPLOAD_WAIT);
+		};
+
+		sendSamples();
 	});
 
 	async function startRecording() {
@@ -73,11 +85,3 @@
 
 <Button onclick={startRecording}>Start</Button>
 <Button onclick={stopRecording}>Stop</Button>
-
-<div id="transmission-text">
-	{#each transcription.entries() as [line, text]}
-		<span>
-			<p>{text}</p>
-		</span>
-	{/each}
-</div>
