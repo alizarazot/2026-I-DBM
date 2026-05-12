@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import { Timeline, TimelineItem } from 'flowbite-svelte';
+	import { Timeline, TimelineItem, GradientButton } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
@@ -48,6 +48,14 @@
 		updateLines();
 		updateQuestion();
 	});
+
+	const buttonColors = ['blue', 'green', 'cyan', 'teal'];
+	const chooseRandomColor = (): 'blue' | 'green' | 'cyan' | 'teal' =>
+		buttonColors[Math.floor(Math.random() * buttonColors.length)] as
+			| 'blue'
+			| 'green'
+			| 'cyan'
+			| 'teal';
 </script>
 
 <div class="flex h-full flex-col">
@@ -58,12 +66,16 @@
 	</Timeline>
 
 	{#if currentQuestion.question}
-		<div>
-			<h1>{currentQuestion.question}</h1>
-			<ul>
-				<li>- {currentQuestion.correctAnswer}</li>
+		<div class="border-t pt-3">
+			<h1 class="mx-4"><strong>Pregunta:</strong> {currentQuestion.question}</h1>
+			<ul class=" flex gap-4 p-4">
+				<GradientButton color={chooseRandomColor()}>
+					{currentQuestion.correctAnswer}
+				</GradientButton>
 				{#each currentQuestion.badAnswers as answer (answer.answer)}
-					<li>- {answer.answer}</li>
+					<GradientButton color={chooseRandomColor()}>
+						{answer.answer}
+					</GradientButton>
 				{/each}
 			</ul>
 		</div>
