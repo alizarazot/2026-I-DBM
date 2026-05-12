@@ -92,21 +92,20 @@ export const POST: RequestHandler = async ({ request }) => {
 		await makeQuestions(result!._id, lines);
 	}
 
-	return json(lines);
+	return json({ lines });
 };
 
-export const GET: RequestHandler = async ({ url }) => {
-	const sessionId = url.searchParams.get('sessionId');
-	if (!sessionId) {
-		throw error(400, 'Missing sessionId');
-	}
-
-	const transcription = await collectionTranscriptions.findOne({ sessionId });
+export const GET: RequestHandler = async () => {
+	const transcription = await collectionTranscriptions
+		.find()
+		.sort({ updatedAt: -1 })
+		.limit(1)
+		.next();
 	if (!transcription) {
 		throw error(404, 'Not found');
 	}
 
-	return json(transcription.lines ?? []);
+	return json({ lines: transcription.lines ?? [] });
 };
 
 async function makeQuestions(id: ObjectId, lines: string[]) {

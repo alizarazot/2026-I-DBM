@@ -31,9 +31,9 @@
 
 	const updateLines = async () => {
 		const req = await fetch('/broadcast/process-pcm');
-		const nextLines = await req.json();
-		if (nextLines.length > 0) {
-			lines = nextLines;
+		const answer = await req.json();
+		if (answer.lines.length > 0) {
+			lines = answer.lines;
 		}
 		setTimeout(updateLines, 1000);
 	};
@@ -52,7 +52,7 @@
 
 <div class="flex h-full flex-col">
 	<Timeline class="m-8 grow overflow-y-scroll">
-		{#each lines as line (line)}
+		{#each lines as line, key (key)}
 			<TimelineItem title={line} date=""><p></p></TimelineItem>
 		{/each}
 	</Timeline>

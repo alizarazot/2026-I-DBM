@@ -95,9 +95,9 @@
 					body: buffer
 				});
 
-				const nextLines = await req.json();
-				if (nextLines.length > 0) {
-					lines = nextLines;
+				const answer = await req.json();
+				if (answer.lines.length > 0) {
+					lines = answer.lines;
 				}
 			} catch (e) {
 				console.log('The server rejected the PCM data!', e);
