@@ -117,6 +117,15 @@
 		await audioContext.suspend();
 		transcriptionLive = false;
 	}
+
+	let currentMsg = $state('');
+	onMount(() => {
+		setInterval(async () => {
+			const req = await fetch('/teacher/question');
+			const answer = await req.json();
+			currentMsg = answer.msg;
+		}, 1000);
+	});
 </script>
 
 <div class="flex h-full flex-col">
@@ -169,4 +178,5 @@
 			{/if}
 		</div>
 	</div>
+	<p class="p-2 text-center">{currentMsg}</p>
 </div>
