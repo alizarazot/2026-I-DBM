@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
 
 	import { Timeline, TimelineItem, Button, Modal } from 'flowbite-svelte';
@@ -12,7 +13,7 @@
 
 	const CURRENT_SESSION_ID = uuidV4AsString();
 
-	const data: any = $props();
+	let { data }: PageProps = $props();
 
 	const apiKey = env.PUBLIC_GOOGLE_MAPS_API_KEY;
 	const mapOptions: { zoom: number; center: { lat: number; lng: number } | null } = $state({
@@ -113,14 +114,13 @@
 </script>
 
 <div class="flex h-full flex-col">
-	<!--
 	<Timeline class="m-8 grow overflow-y-scroll">
-		TODO: Fix this.
-		{#each lines as line}
-			<TimelineItem title={line} date=""><p></p></TimelineItem>
+		{#each lines as line, index (index)}
+			<TimelineItem title={line} date="">
+				<p></p>
+			</TimelineItem>
 		{/each}
 	</Timeline>
-		-->
 
 	{#if mapOptions.center}
 		<Modal
@@ -131,7 +131,11 @@
 		>
 			<div style="width: 600px; height: 400px;">
 				<APIProvider {apiKey}>
-					<GoogleMap options={mapOptions} mapContainerStyle="width: 100%; height: 100%;" />
+					<GoogleMap options={mapOptions} mapContainerStyle="width: 100%; height: 100%;">
+						{#each data.studentLocations ?? [] as location, index (index)}
+							<Marker position={{ lat: location.coordinates[1], lng: location.coordinates[0] }} />
+						{/each}
+					</GoogleMap>
 				</APIProvider>
 			</div>
 		</Modal>
