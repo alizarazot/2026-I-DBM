@@ -56,11 +56,8 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const GET: RequestHandler = async ({}) => {
-	const transcription = await collectionTranscriptions
-		.find()
-		.sort({ updatedAt: -1 })
-		.limit(1)
-		.next();
+	// TODO: Fix this.
+	const transcription = null;
 
 	if (!transcription) {
 		return error(401, 'Not found');

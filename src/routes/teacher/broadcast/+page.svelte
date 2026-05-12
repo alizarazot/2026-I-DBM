@@ -1,15 +1,40 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { Timeline, TimelineItem, Button } from 'flowbite-svelte';
+	import { Timeline, TimelineItem, Button, Modal } from 'flowbite-svelte';
+	import { APIProvider, GoogleMap, Marker } from 'svelte-google-maps-api';
 
 	import { uuidV4AsString } from '$lib/uuid';
+	import { env } from '$env/dynamic/public';
 
 	const SAMPLE_RATE = 16000;
+	const SAMPLE_UPLOAD_WAIT = 1000; // In milliseconds.
 
 	const CURRENT_SESSION_ID = uuidV4AsString();
 
-	const SAMPLE_UPLOAD_WAIT = 1000; // In milliseconds.
+	const data: any = $props();
+
+	const apiKey = env.PUBLIC_GOOGLE_MAPS_API_KEY;
+	const mapOptions: { zoom: number; center: { lat: number; lng: number } | null } = $state({
+		zoom: 14,
+		center: null
+	});
+
+	onMount(() => {
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				mapOptions.center = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude
+				};
+			},
+			(error) => {
+				console.error('Error getting location:', error);
+			}
+		);
+	});
+
+	let showMap = $state(false);
 
 	let lines = $state([]);
 
@@ -88,14 +113,39 @@
 </script>
 
 <div class="flex h-full flex-col">
+	<!--
 	<Timeline class="m-8 grow overflow-y-scroll">
+		TODO: Fix this.
 		{#each lines as line}
 			<TimelineItem title={line} date=""><p></p></TimelineItem>
 		{/each}
 	</Timeline>
+		-->
+
+	{#if mapOptions.center}
+		<Modal
+			bind:open={showMap}
+			onclose={() => {
+				showMap = false;
+			}}
+		>
+			<div style="width: 600px; height: 400px;">
+				<APIProvider {apiKey}>
+					<GoogleMap options={mapOptions} mapContainerStyle="width: 100%; height: 100%;" />
+				</APIProvider>
+			</div>
+		</Modal>
+	{/if}
 
 	<div class="m-4 flex justify-center gap-4">
 		<Button onclick={startRecording}>Transmitir</Button>
 		<Button onclick={stopRecording}>Detener</Button>
+		{#if mapOptions.center}
+			<Button
+				onclick={() => {
+					showMap = true;
+				}}>Mostrar mapa</Button
+			>
+		{/if}
 	</div>
 </div>

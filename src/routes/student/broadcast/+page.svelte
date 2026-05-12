@@ -1,6 +1,29 @@
 <script lang="ts">
-	import { Timeline, TimelineItem, Button } from 'flowbite-svelte';
+	import type { PageProps } from './$types';
+	import { Timeline, TimelineItem } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
+
+	let { data }: PageProps = $props();
+
+	onMount(() => {
+		if (data.shouldAskLocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					fetch('/api/analytics/location', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							longitude: position.coords.longitude,
+							latitude: position.coords.latitude
+						})
+					});
+				},
+				(error) => {
+					console.error('Error getting location:', error);
+				}
+			);
+		}
+	});
 
 	let lines = $state([]);
 
@@ -17,11 +40,6 @@
 		currentQuestion = await resp.json();
 		setTimeout(updateQuestion, 1000);
 	};
-
-	onMount(() => {
-		updateLines();
-		updateQuestion();
-	});
 </script>
 
 <div class="flex h-full flex-col">

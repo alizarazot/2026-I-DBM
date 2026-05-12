@@ -1,4 +1,4 @@
-export function format(template: string, variables: { [key: string]: string}) {
+export function format(template: string, variables: { [key: string]: string }) {
 	return template.replace(/\{(\w+)\}/g, (match, key) => {
 		return variables[key] || match;
 	});

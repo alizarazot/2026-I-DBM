@@ -1,5 +1,7 @@
-export async function GET({ url }) {
-	// 1. Get query params if needed (e.g., ?id=123)
+import type { RequestEvent } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
+
+export async function GET({ url }: RequestEvent) {
 	const id = url.searchParams.get('id');
 
 	const data = {
@@ -7,6 +9,5 @@ export async function GET({ url }) {
 		requestedId: id
 	};
 
-	// 2. Return using the json() helper
 	return json(data);
 }
