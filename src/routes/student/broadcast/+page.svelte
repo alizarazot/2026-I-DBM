@@ -59,10 +59,11 @@
 </script>
 
 <div class="flex h-full flex-col">
-	<Timeline class="m-8 grow overflow-y-scroll">
+	<Timeline class="m-8 grow snap-y snap-proximity overflow-y-scroll">
 		{#each lines as line, key (key)}
-			<TimelineItem title={line} date=""><p></p></TimelineItem>
+			<TimelineItem class="snap-align-none" title={line} date=""><p></p></TimelineItem>
 		{/each}
+		<TimelineItem class="snap-end" title="" date=""><p></p></TimelineItem>
 	</Timeline>
 
 	{#if currentQuestion.question}
