@@ -32,3 +32,5 @@ vite.config.ts.timestamp-*
 
 # Python.
 __pycache__/
+
+asr-key.json
