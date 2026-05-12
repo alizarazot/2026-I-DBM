@@ -43,11 +43,16 @@
 		currentQuestion = await resp.json();
 		setTimeout(updateQuestion, 1000);
 	};
+
+	onMount(() => {
+		updateLines();
+		updateQuestion();
+	});
 </script>
 
 <div class="flex h-full flex-col">
 	<Timeline class="m-8 grow overflow-y-scroll">
-		{#each lines as line}
+		{#each lines as line (line)}
 			<TimelineItem title={line} date=""><p></p></TimelineItem>
 		{/each}
 	</Timeline>
@@ -57,7 +62,7 @@
 			<h1>{currentQuestion.question}</h1>
 			<ul>
 				<li>- {currentQuestion.correctAnswer}</li>
-				{#each currentQuestion.badAnswers as answer}
+				{#each currentQuestion.badAnswers as answer (answer.answer)}
 					<li>- {answer.answer}</li>
 				{/each}
 			</ul>

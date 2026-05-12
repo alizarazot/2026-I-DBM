@@ -37,11 +37,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw error(401, 'Unauthorized');
 	}
 
-	const currentSessionId = request.headers.get('X-Current-Session-Id') ?? null;
-	if (!currentSessionId) {
-		throw error(401, 'Unauthorized');
-	}
-
 	const rawAudio = await request.arrayBuffer();
 	const float32Audio = new Float32Array(rawAudio);
 	const pcmAudio = float32To16BitPCM(float32Audio);
@@ -86,18 +81,18 @@ export const POST: RequestHandler = async ({ request }) => {
 					}
 				};
 
-	const result = await collectionTranscriptions.findOneAndUpdate(
-		{ sessionId: `${session.session.id}-${currentSessionId}` },
-		updateOps,
-		{ upsert: true, returnDocument: 'after' }
-	);
+	await collectionTranscriptions.findOneAndUpdate({ sessionId: session.session.id }, updateOps, {
+		upsert: true
+	});
 
-	const savedDoc = result?.value;
-	if (savedDoc && transcriptionLines.length > 0) {
-		await makeQuestions(savedDoc._id, transcriptionLines);
+	const result = await collectionTranscriptions.findOne({ sessionId: session.session.id });
+
+	const lines = result?.lines ?? [];
+	if (lines.length > 0) {
+		await makeQuestions(result!._id, lines);
 	}
 
-	return json(transcriptionLines);
+	return json(lines);
 };
 
 export const GET: RequestHandler = async ({ url }) => {
