@@ -56,6 +56,16 @@
 			| 'green'
 			| 'cyan'
 			| 'teal';
+
+	async function sendAnswer(answer: number) {
+		const formData = new FormData();
+		formData.append('answer', answer.toString());
+
+		await fetch('/student/broadcast/questions', {
+			method: 'POST',
+			body: formData
+		});
+	}
 </script>
 
 <div class="flex h-full flex-col">
@@ -70,11 +80,11 @@
 		<div class="border-t pt-3">
 			<h1 class="mx-4"><strong>Pregunta:</strong> {currentQuestion.question}</h1>
 			<ul class=" flex gap-4 p-4">
-				<GradientButton color={chooseRandomColor()}>
+				<GradientButton color={chooseRandomColor()} onclick={() => sendAnswer(0)}>
 					{currentQuestion.correctAnswer}
 				</GradientButton>
-				{#each currentQuestion.badAnswers as answer (answer.answer)}
-					<GradientButton color={chooseRandomColor()}>
+				{#each currentQuestion.badAnswers as answer, id (id)}
+					<GradientButton color={chooseRandomColor()} onclick={() => sendAnswer(id + 1)}>
 						{answer.answer}
 					</GradientButton>
 				{/each}

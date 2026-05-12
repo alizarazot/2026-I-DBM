@@ -153,7 +153,8 @@ async function makeQuestions(id: ObjectId, lines: string[]) {
 					questions: question
 				},
 				$set: {
-					lastPosition: numWords
+					lastPosition: numWords,
+					lastAnswer: null
 				}
 			},
 			{ upsert: true }
