@@ -148,5 +148,6 @@ export const getLatestLocationsForAllUsers = async () =>
 		.toArray();
 
 export const collectionLectures = db.collection('lectures');
+export const collectionTranscriptions = db.collection('transcriptions');
 export const collectionQuestions = db.collection('questions');
 export const collectionUserAnalytics = db.collection('user_location_analytics');
