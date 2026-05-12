@@ -36,6 +36,7 @@
 	});
 
 	let showMap = $state(false);
+	let transcriptionLive = $state(false);
 
 	let lines = $state([]);
 
@@ -94,7 +95,10 @@
 					body: buffer
 				});
 
-				lines = await req.json();
+				const nextLines = await req.json();
+				if (nextLines.length > 0) {
+					lines = nextLines;
+				}
 			} catch (e) {
 				console.log('The server rejected the PCM data!', e);
 			}
@@ -102,14 +106,16 @@
 			setTimeout(sendSamples, SAMPLE_UPLOAD_WAIT);
 		};
 
-		sendSamples();
+		setTimeout(sendSamples, SAMPLE_UPLOAD_WAIT);
 	});
 
 	async function startRecording() {
 		await audioContext.resume();
+		transcriptionLive = true;
 	}
 	async function stopRecording() {
 		await audioContext.suspend();
+		transcriptionLive = false;
 	}
 </script>
 
@@ -141,15 +147,27 @@
 		</Modal>
 	{/if}
 
-	<div class="m-4 flex justify-center gap-4">
-		<Button onclick={startRecording}>Transmitir</Button>
-		<Button onclick={stopRecording}>Detener</Button>
-		{#if mapOptions.center}
-			<Button
-				onclick={() => {
-					showMap = true;
-				}}>Mostrar mapa</Button
-			>
-		{/if}
+	<div class="m-4 flex flex-col items-center gap-4">
+		<div class="flex items-center gap-2">
+			<div
+				class={transcriptionLive
+					? 'h-3 w-3 rounded-full bg-green-500'
+					: 'h-3 w-3 rounded-full bg-gray-400'}
+			></div>
+			<span>{transcriptionLive ? 'Transcripción en vivo' : 'Transcripción detenida'}</span>
+		</div>
+		<div class="flex justify-center gap-4">
+			<Button onclick={startRecording}>Transmitir</Button>
+			<Button onclick={stopRecording}>Detener</Button>
+			{#if mapOptions.center}
+				<Button
+					onclick={() => {
+						showMap = true;
+					}}
+				>
+					Mostrar mapa
+				</Button>
+			{/if}
+		</div>
 	</div>
 </div>

@@ -31,7 +31,10 @@
 
 	const updateLines = async () => {
 		const req = await fetch('/broadcast/process-pcm');
-		lines = await req.json();
+		const nextLines = await req.json();
+		if (nextLines.length > 0) {
+			lines = nextLines;
+		}
 		setTimeout(updateLines, 1000);
 	};
 

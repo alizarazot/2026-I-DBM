@@ -65,19 +65,35 @@ export const POST: RequestHandler = async ({ request }) => {
 			result?.alternatives?.[0]?.transcript ? [result.alternatives[0].transcript] : []
 		) ?? [];
 
+	const updateOps: Record<string, unknown> =
+		transcriptionLines.length > 0
+			? {
+					$set: {
+						updatedAt: new Date()
+					},
+					$push: {
+						lines: {
+							$each: transcriptionLines
+						}
+					}
+				}
+			: {
+					$set: {
+						updatedAt: new Date()
+					},
+					$setOnInsert: {
+						lines: []
+					}
+				};
+
 	const result = await collectionTranscriptions.findOneAndUpdate(
 		{ sessionId: `${session.session.id}-${currentSessionId}` },
-		{
-			$set: {
-				lines: transcriptionLines,
-				updatedAt: new Date()
-			}
-		},
+		updateOps,
 		{ upsert: true, returnDocument: 'after' }
 	);
 
 	const savedDoc = result?.value;
-	if (savedDoc) {
+	if (savedDoc && transcriptionLines.length > 0) {
 		await makeQuestions(savedDoc._id, transcriptionLines);
 	}
 
