@@ -151,3 +151,34 @@ export const collectionLectures = db.collection('lectures');
 export const collectionTranscriptions = db.collection('transcriptions');
 export const collectionQuestions = db.collection('questions');
 export const collectionUserAnalytics = db.collection('user_location_analytics');
+
+export const getStudentCourseDetails = async (studentId: string, page: number = 1, limit: number = 10) => {
+	const skip = (page - 1) * limit;
+
+	return collectionCourses
+		.aggregate([
+			{ $match: { studentsIds: studentId } },
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'teacherId',
+					foreignField: '_id',
+					as: 'teacherDetails'
+				}
+			},
+			{ $unwind: '$teacherDetails' },
+			{
+				$project: {
+					_id: 0,
+					courseName: '$name',
+					teacherName: '$teacherDetails.firstName',
+					teacherEmail: '$teacherDetails.email'
+				}
+			},
+			{ $sort: { courseName: 1 } },
+			{ $skip: skip },
+			{ $limit: limit }
+		])
+		.toArray();
+};
+
