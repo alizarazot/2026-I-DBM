@@ -5,13 +5,10 @@
 	import { Timeline, TimelineItem, Button, Modal } from 'flowbite-svelte';
 	import { APIProvider, GoogleMap, Marker } from 'svelte-google-maps-api';
 
-	import { uuidV4AsString } from '$lib/uuid';
 	import { env } from '$env/dynamic/public';
 
 	const SAMPLE_RATE = 16000;
-	const SAMPLE_UPLOAD_WAIT = 1000; // In milliseconds.
-
-	const CURRENT_SESSION_ID = uuidV4AsString();
+	const SAMPLE_UPLOAD_WAIT = 2500; // In milliseconds.
 
 	let { data }: PageProps = $props();
 
@@ -89,8 +86,7 @@
 				const req = await fetch('/broadcast/process-pcm', {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/octet-stream',
-						'X-Current-Session-Id': CURRENT_SESSION_ID
+						'Content-Type': 'application/octet-stream'
 					},
 					body: buffer
 				});
