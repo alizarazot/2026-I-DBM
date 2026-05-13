@@ -11,8 +11,6 @@
 
 	let { data }: PageData = $props();
 
-	console.log(data);
-
 	let currentId = $state('');
 
 	let registerOpenKind = $state<'register' | 'update' | null>(null);
@@ -28,10 +26,16 @@
 		currentId = '';
 	}
 
-	let hours = [];
-	for (let i = 6; i <= 20; i++) {
-		hours.push(`${i}:00`);
-	}
+	const rawHours = new Set<number>([
+		...Object.keys(data.maleAttendances ?? {}).map(Number),
+		...Object.keys(data.femaleAttendances ?? {}).map(Number)
+	]);
+	const sortedHours = Array.from(new Set([...rawHours].flatMap((h) => [h - 1, h, h + 1]))).sort(
+		(a, b) => a - b
+	);
+	const hoursLabels = sortedHours.map((h) => `${h}:00`);
+	const maleAttendancesData = sortedHours.map((h) => data.maleAttendances?.[h] ?? 0);
+	const femaleAttendancesData = sortedHours.map((h) => data.femaleAttendances?.[h] ?? 0);
 
 	let showAttendanceModal = $state(false);
 	let attendanceChartOptions: ApexOptions = {
@@ -44,16 +48,16 @@
 		series: [
 			{
 				name: 'Asistencias (hombres)',
-				data: [1, 2, 3, 4]
+				data: maleAttendancesData
 			},
 			{
 				name: 'Asistencias (mujeres)',
-				data: [5, 6, 7, 8],
+				data: femaleAttendancesData,
 				color: '#f6339a'
 			}
 		],
 		xaxis: {
-			categories: hours
+			categories: hoursLabels
 		}
 	};
 </script>

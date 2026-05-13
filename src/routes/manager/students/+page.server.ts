@@ -60,14 +60,15 @@ export const load: PageServerLoad = async () => {
 			},
 			{ $replaceRoot: { newRoot: '$formattedResult' } }
 		])
-		.next();
+		.toArray();
+
+	console.log('Dates', startOfToday, startOfTomorrow);
+	console.log(await collectionAttendances.find().toArray());
 
 	const femaleAttendances = await collectionAttendances
 		.aggregate([
 			{
-				$match: {
-					$and: [{ date: { $gte: startOfToday } }, { date: { $lt: startOfTomorrow } }]
-				}
+				$match: { date: { $gte: startOfToday, $lt: startOfTomorrow } }
 			},
 			{
 				$lookup: {
@@ -114,10 +115,11 @@ export const load: PageServerLoad = async () => {
 			},
 			{ $replaceRoot: { newRoot: '$formattedResult' } }
 		])
-		.next();
+		.toArray();
 
+	console.log(femaleAttendances);
 	return {
-		maleAttendances: maleAttendances,
-		femaleAttendances: femaleAttendances
+		maleAttendances: Object.assign({}, ...maleAttendances),
+		femaleAttendances: Object.assign({}, ...femaleAttendances)
 	};
 };
