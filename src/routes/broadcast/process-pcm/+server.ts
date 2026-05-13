@@ -146,6 +146,8 @@ async function makeQuestions(id: ObjectId, lines: string[]) {
 		// Take only the JSON from the LLM answer.
 		const question = JSON.parse(((await req.json()).response.match(/\{[\s\S]*\}/) ?? [''])[0]);
 
+		question.lastAnswer = null;
+
 		collectionQuestions.updateOne(
 			{ _id: id },
 			{
@@ -153,8 +155,7 @@ async function makeQuestions(id: ObjectId, lines: string[]) {
 					questions: question
 				},
 				$set: {
-					lastPosition: numWords,
-					lastAnswer: null
+					lastPosition: numWords
 				}
 			},
 			{ upsert: true }

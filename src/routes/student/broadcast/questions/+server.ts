@@ -4,7 +4,9 @@ import { json } from '@sveltejs/kit';
 export async function GET() {
 	const questions = await collectionQuestions.find().sort({ _id: -1 }).limit(1).next();
 
-	if (questions?.lastAnswer) {
+	const lastQuestion = questions?.questions[questions.questions.length - 1];
+
+	if (lastQuestion?.lastAnswer) {
 		return json({ question: null });
 	}
 
@@ -17,11 +19,17 @@ export async function POST({ request }) {
 
 	const questions = await collectionQuestions.find().sort({ _id: -1 }).limit(1).next();
 
+	if (!questions) {
+		return json({ success: false });
+	}
+
+	questions.questions[questions.questions.length - 1].lastAnswer = answer;
+
 	collectionQuestions.updateOne(
 		{ _id: questions!._id },
 		{
 			$set: {
-				lastAnswer: answer
+				questions: questions!.questions
 			}
 		}
 	);
