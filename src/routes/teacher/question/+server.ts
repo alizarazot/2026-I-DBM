@@ -4,7 +4,11 @@ import { json } from '@sveltejs/kit';
 export const GET = async () => {
 	const question = await collectionQuestions.find().sort({ _id: -1 }).limit(1).next();
 
-	const lastQuestion = question?.questions[question.questions.length - 1];
+	if (!question || question.updatedAt?.getTime() < new Date().getTime() - 300000) {
+		return json({ msg: '' });
+	}
+
+	const lastQuestion = question.questions[question.questions.length - 1];
 
 	if (lastQuestion?.lastAnswer < 0) {
 		return json({ msg: 'Los estudiantes no están prestando atención' });

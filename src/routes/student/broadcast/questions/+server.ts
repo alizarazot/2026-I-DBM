@@ -29,7 +29,8 @@ export async function POST({ request }) {
 		{ _id: questions!._id },
 		{
 			$set: {
-				questions: questions!.questions
+				questions: questions!.questions,
+				updatedAt: new Date()
 			}
 		}
 	);
