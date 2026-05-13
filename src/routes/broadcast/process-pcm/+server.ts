@@ -105,6 +105,11 @@ export const GET: RequestHandler = async () => {
 		throw error(404, 'Not found');
 	}
 
+	if (transcription.updatedAt.getTime() < new Date().getTime() - 60000) {
+		// If the transcription is older than 1 minute, consider it stale and return empty.
+		return json({ lines: [] });
+	}
+
 	return json({ lines: transcription.lines ?? [] });
 };
 
