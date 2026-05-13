@@ -27,6 +27,7 @@
 
 	let lines = $state([]);
 
+	let questionId = 0;
 	let currentQuestion = $state<any>({});
 
 	const updateLines = async () => {
@@ -40,8 +41,17 @@
 
 	const updateQuestion = async () => {
 		const resp = await fetch('/student/broadcast/questions');
-		currentQuestion = await resp.json();
+		const currentQuestionLocal = await resp.json();
+		currentQuestion = currentQuestionLocal;
 		setTimeout(updateQuestion, 1000);
+
+		setTimeout(() => {
+			if (currentQuestionLocal.question != currentQuestion.question) {
+				return;
+			}
+
+			sendAnswer(-1); // Inform that there isn't student activity.
+		}, 15000);
 	};
 
 	onMount(() => {
