@@ -45,11 +45,16 @@
 		currentQuestion = currentQuestionLocal;
 		setTimeout(updateQuestion, 1000);
 
+		if (!currentQuestionLocal.question) {
+			return;
+		}
+
 		setTimeout(() => {
-			if (currentQuestionLocal.question != currentQuestion.question) {
+			if (!currentQuestion.question || currentQuestionLocal.question != currentQuestion.question) {
 				return;
 			}
 
+			console.log('No student activity detected, sending -1 as answer.');
 			sendAnswer(-1); // Inform that there isn't student activity.
 		}, 15000);
 	};
