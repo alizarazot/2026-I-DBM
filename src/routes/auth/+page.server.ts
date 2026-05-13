@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
 import { auth } from '$lib/server/auth';
-import { db } from '$lib/server/database';
+import { collectionAttendances } from '$lib/server/database';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event: any) => {
@@ -149,5 +149,14 @@ export const actions: Actions = {
 			headers: event.request.headers
 		});
 		return redirect(302, '/auth');
+	},
+	ping: async (event) => {
+		if (!event.locals.user) {
+			return redirect(302, '/auth');
+		}
+
+		await collectionAttendances.insertOne({ userId: event.locals.user.id, date: new Date() });
+		console.log('Ping inserted');
+		console.log(collectionAttendances.find());
 	}
 };

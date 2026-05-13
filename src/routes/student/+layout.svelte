@@ -10,6 +10,7 @@
 		DropdownHeader,
 		DropdownItem
 	} from 'flowbite-svelte';
+	import { onMount } from 'svelte';
 
 	const { children, data } = $props();
 
@@ -17,6 +18,10 @@
 		await fetch('/auth?/signOut', { method: 'POST', body: new FormData() });
 		window.location.href = '/auth';
 	}
+
+	onMount(() => {
+		fetch('/auth?/ping', { method: 'POST', body: new FormData() });
+	});
 </script>
 
 <div class="flex h-dvh flex-col">

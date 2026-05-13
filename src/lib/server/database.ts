@@ -44,7 +44,7 @@ export type Attendance = {
 	userId: string;
 	date: Date;
 };
-export const collectionAttendances = db.collection('attendance');
+export const collectionAttendances = db.collection('attendances');
 
 export const collectionCourses = db.collection('courses');
 
