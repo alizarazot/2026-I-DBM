@@ -6,7 +6,7 @@ export async function GET() {
 
 	const lastQuestion = questions?.questions[questions.questions.length - 1];
 
-	if (lastQuestion?.lastAnswer) {
+	if (lastQuestion?.lastAnswer != null) {
 		return json({ question: null });
 	}
 
