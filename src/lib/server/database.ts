@@ -191,4 +191,20 @@ export const getLargeCoursesExceptGeneral = async (minStudents: number) => {
 		.toArray();
 };
 
+export const findUsersByCriteria = async (email: string, role: string, banned: boolean) => {
+	return db.collection('users').find({
+		$and: [
+			{ email: { $not: { $eq: email } } }, 
+			{
+				$or: [
+					{ role: 'teacher' },
+					{ role: 'manager' }
+				]
+			},
+			{ banned: banned }
+		]
+	}).toArray();
+};
+
+
 
