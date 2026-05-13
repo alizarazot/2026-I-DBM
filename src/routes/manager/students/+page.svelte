@@ -11,6 +11,8 @@
 
 	let { data }: PageData = $props();
 
+	console.log(data);
+
 	let currentId = $state('');
 
 	let registerOpenKind = $state<'register' | 'update' | null>(null);

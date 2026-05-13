@@ -3,6 +3,7 @@ import { APIError } from 'better-auth/api';
 import { auth } from '$lib/server/auth';
 import { collectionAttendances } from '$lib/server/database';
 import type { Actions, PageServerLoad } from './$types';
+import { ObjectId } from 'mongodb';
 
 export const load: PageServerLoad = async (event: any) => {
 	if (event.locals.user) {
@@ -155,8 +156,9 @@ export const actions: Actions = {
 			return redirect(302, '/auth');
 		}
 
-		await collectionAttendances.insertOne({ userId: event.locals.user.id, date: new Date() });
-		console.log('Ping inserted');
-		console.log(collectionAttendances.find());
+		collectionAttendances.insertOne({
+			userId: new ObjectId(event.locals.user.id),
+			date: new Date()
+		});
 	}
 };
