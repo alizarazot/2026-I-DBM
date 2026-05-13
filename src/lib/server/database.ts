@@ -40,6 +40,12 @@ export type Course = {
 	}[];
 };
 
+export type Attendance = {
+	userId: string;
+	date: Date;
+};
+export const collectionAttendances = db.collection('attendance');
+
 export const collectionCourses = db.collection('courses');
 
 export const weekdayNames = [

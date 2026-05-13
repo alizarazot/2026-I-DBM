@@ -38,7 +38,8 @@ export const actions: Actions = {
 						email: formData.get('email')?.toString() ?? '',
 						lastName: formData.get('lastName')?.toString() ?? '',
 						document: formData.get('document')?.toString() ?? '',
-						phone: formData.get('phone')?.toString() ?? ''
+						phone: formData.get('phone')?.toString() ?? '',
+						isMale: (formData.get('isMale')?.toString() ?? 'true') == 'true'
 					}
 				},
 				headers: event.request.headers
@@ -62,7 +63,8 @@ export const actions: Actions = {
 					data: {
 						lastName: formData.get('lastName')?.toString() ?? '',
 						document: formData.get('document')?.toString() ?? '',
-						phone: formData.get('phone')?.toString() ?? ''
+						phone: formData.get('phone')?.toString() ?? '',
+						isMale: (formData.get('isMale')?.toString() ?? 'true') == 'true'
 					}
 				}
 			});
@@ -85,7 +87,8 @@ export const actions: Actions = {
 					data: {
 						lastName: formData.get('lastName')?.toString() ?? '',
 						document: formData.get('document')?.toString() ?? '',
-						phone: formData.get('phone')?.toString() ?? ''
+						phone: formData.get('phone')?.toString() ?? '',
+						isMale: (formData.get('isMale')?.toString() ?? 'true') == 'true'
 					}
 				}
 			});
@@ -108,7 +111,8 @@ export const actions: Actions = {
 					data: {
 						lastName: formData.get('lastName')?.toString() ?? '',
 						document: formData.get('document')?.toString() ?? '',
-						phone: formData.get('phone')?.toString() ?? ''
+						phone: formData.get('phone')?.toString() ?? '',
+						isMale: (formData.get('isMale')?.toString() ?? 'true') == 'true'
 					}
 				}
 			});

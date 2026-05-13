@@ -27,7 +27,6 @@
 
 	let lines = $state([]);
 
-	let questionId = 0;
 	let currentQuestion = $state<any>({});
 
 	const updateLines = async () => {

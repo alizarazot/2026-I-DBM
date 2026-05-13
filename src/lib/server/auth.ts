@@ -39,6 +39,10 @@ export const auth = betterAuth({
 			phone: {
 				type: 'string',
 				required: true
+			},
+			isMale: {
+				type: 'boolean',
+				required: true
 			}
 		}
 	},

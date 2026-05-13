@@ -52,6 +52,7 @@
 	let email = $state('');
 	let password = $state('');
 	let phone = $state('');
+	let isMale = $state(true);
 
 	$effect(() => {
 		const id = updateId;
@@ -77,6 +78,7 @@
 			lastName = user.lastName;
 			email = user.email;
 			phone = user.phone;
+			isMale = user.isMale;
 		})();
 	});
 
@@ -87,6 +89,7 @@
 			lastName = '';
 			email = '';
 			phone = '';
+			isMale = true;
 		}
 	});
 
@@ -135,6 +138,24 @@
 		<Label class="space-y-2">
 			<span>Número de cédula de ciudadanía</span>
 			<Input name="document" type="number" required bind:value={document} />
+		</Label>
+
+		<Label class="items-center gap-2 space-y-2">
+			<span class="m-0">Sexo</span>
+			<ul
+				class="flex w-full items-center divide-x divide-gray-200 rounded-lg border border-gray-200"
+			>
+				<li class="w-full">
+					<Radio classes={{ label: 'p-3' }} bind:group={isMale} name="isMale" value={true}
+						>Masculino</Radio
+					>
+				</li>
+				<li class="w-full">
+					<Radio classes={{ label: 'p-3' }} bind:group={isMale} name="isMale" value={false}
+						>Femenino</Radio
+					>
+				</li>
+			</ul>
 		</Label>
 
 		<div class="flex gap-2 space-y-2">

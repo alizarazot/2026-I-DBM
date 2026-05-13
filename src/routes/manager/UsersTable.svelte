@@ -6,10 +6,26 @@
 
 	const dataTableOptions = $derived({
 		data: {
-			headings: ['ID', 'Nombres', 'Apellidos', 'Correo electrónico', 'Documento', 'Teléfono'],
+			headings: [
+				'ID',
+				'Nombres',
+				'Apellidos',
+				'Sexo',
+				'Correo electrónico',
+				'Documento',
+				'Teléfono'
+			],
 			data: users
 				.filter((user) => user.role === role)
-				.map((user) => [user.id, user.name, user.lastName, user.email, user.document, user.phone])
+				.map((user) => [
+					user.id,
+					user.name,
+					user.lastName,
+					(user?.isMale ?? true) ? 'Masculino' : 'Femenino',
+					user.email,
+					user.document,
+					user.phone
+				])
 		},
 		paging: false,
 		searchable: false,
