@@ -4,7 +4,7 @@ import { json } from '@sveltejs/kit';
 export const GET = async () => {
 	const question = await collectionQuestions.find().sort({ _id: -1 }).limit(1).next();
 
-	if (!question || question.updatedAt?.getTime() < new Date().getTime() - 30000) {
+	if (!question || question.updatedAt?.getTime() < new Date().getTime() - 15000) {
 		return json({ msg: '' });
 	}
 
