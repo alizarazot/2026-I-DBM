@@ -152,7 +152,11 @@ export const collectionTranscriptions = db.collection('transcriptions');
 export const collectionQuestions = db.collection('questions');
 export const collectionUserAnalytics = db.collection('user_location_analytics');
 
-export const getStudentCourseDetails = async (studentId: string, page: number = 1, limit: number = 10) => {
+export const getStudentCourseDetails = async (
+	studentId: string,
+	page: number = 1,
+	limit: number = 10
+) => {
 	const skip = (page - 1) * limit;
 
 	return collectionCourses
@@ -186,25 +190,21 @@ export const getLargeCoursesExceptGeneral = async (minStudents: number) => {
 	return collectionCourses
 		.find({
 			maxStudents: { $gte: minStudents },
-			teacherId: { $ne: 'general' }
+			name: { $ne: 'General' }
 		})
 		.toArray();
 };
 
-export const findUsersByCriteria = async (email: string, role: string, banned: boolean) => {
-	return db.collection('users').find({
-		$and: [
-			{ email: { $not: { $eq: email } } }, 
-			{
-				$or: [
-					{ role: 'teacher' },
-					{ role: 'manager' }
-				]
-			},
-			{ banned: banned }
-		]
-	}).toArray();
+export const findUsersByCriteria = async (email: string) => {
+	return db
+		.collection('users')
+		.find({
+			$and: [
+				{ email: { $not: { $eq: email } } },
+				{
+					$or: [{ role: 'teacher' }, { role: 'manager' }]
+				}
+			]
+		})
+		.toArray();
 };
-
-
-
