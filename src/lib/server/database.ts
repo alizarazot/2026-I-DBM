@@ -182,3 +182,13 @@ export const getStudentCourseDetails = async (studentId: string, page: number = 
 		.toArray();
 };
 
+export const getLargeCoursesExceptGeneral = async (minStudents: number) => {
+	return collectionCourses
+		.find({
+			maxStudents: { $gte: minStudents },
+			teacherId: { $ne: 'general' }
+		})
+		.toArray();
+};
+
+
