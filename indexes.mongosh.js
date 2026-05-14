@@ -13,8 +13,8 @@ db.users.createIndex({ lastName: 1, firstName: 1 });
 // 3. Multikey Index (indexing the studentsIds array in courses)
 db.courses.createIndex({ studentsIds: 1 });
 
-// 4. Text Index (searching course names and descriptions)
-db.courses.createIndex({ name: 'text', description: 'text' });
+// 4. Text index.
+db.courses.createIndex({ name: 'text_course', name: 'text', description: 'text' });
 
 // 5. Geospatial Index
 db.user_location_analytics.createIndex({ coordinates: '2dsphere' });

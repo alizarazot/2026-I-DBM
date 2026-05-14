@@ -17,6 +17,7 @@
 	const { children, data } = $props();
 
 	const sections = {
+		search: 'Buscar',
 		courses: 'Cursos',
 		managers: 'Administradores',
 		teachers: 'Profesores',
