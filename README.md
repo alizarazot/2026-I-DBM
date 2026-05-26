@@ -14,7 +14,7 @@ This is a self-managed platform for remote class management, including assistanc
 - A simple system to help teachers verify student engagement with lectures (automatic testing and feedback).
 - Real-time student location tracking (visible to teachers if the manager allows it) during lectures.
 - Automatic assistance saving.
-Generation of reports for managers, teachers and students.
+- Generation of reports for managers, teachers and students.
 - A built-in customer feedback and complaints system with email notifications.
 - Dark and light theme support with beautiful animations.
 
