@@ -4,3 +4,6 @@
 
 # Direnv.
 /.direnv/
+
+# Temporary files.
+/tmp
