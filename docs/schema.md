@@ -29,15 +29,6 @@ type User = {
     updatedAt: Date;
 };
 
-// TODO: Index can expire JWT token.
-type UserSessions = {
-    userId: ObjectId;
-    jwtToken: string; // Single field index.
-
-    createdAt: Date;
-    updatedAt: Date;
-};
-
 // Compound index: `{ userId: 1, time: -1 }`.
 type UserAnalytics = {
     userId: ObjectId;
