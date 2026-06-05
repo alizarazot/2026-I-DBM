@@ -25,3 +25,7 @@ This is a self-managed platform for remote class management, including assistanc
 # Additional information
 
 This project is a solution to a **database management** assignment, which was part of the curriculum of [Universidad Francisco de Paula Santander Ocaña](https://ufpso.edu.co/) in Colombia.
+
+This project couldn't have been completed without these guides, so a special thanks to them.
+
+- <https://grafana.com/blog/how-i-write-http-services-in-go-after-13-years/>.
