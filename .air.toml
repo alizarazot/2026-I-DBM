@@ -9,7 +9,7 @@ tmp_dir = "tmp"
   args_bin = []
   bin = "./tmp/main"
   cmd = "go build -o ./tmp/main ./cmd/Linea"
-  delay = 1
+  delay = 1000
   entrypoint = ["./tmp/main"]
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -46,7 +46,7 @@ tmp_dir = "tmp"
   time = false
 
 [misc]
-  clean_on_exit = false
+  clean_on_exit = true
 
 [proxy]
   app_port = 9090

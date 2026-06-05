@@ -6,13 +6,14 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/alizarazot/2026-i-dbm/internal/constants"
+	"github.com/alizarazot/2026-i-dbm/internal/database"
 	"github.com/alizarazot/2026-i-dbm/internal/server"
-	"github.com/charmbracelet/log"
-)
 
-const (
-	ENV_BASE = "LINEA_"
-	ENV_ADDR = ENV_BASE + "ADDR"
+	"charm.land/log/v2"
+
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	mongoOptions "go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func main() {
@@ -26,11 +27,19 @@ func run(getenv func(string) string, stderr io.Writer) error {
 	loggerHandler := log.New(stderr)
 	logger := slog.New(loggerHandler)
 
-	server := server.NewServer(logger)
+	mongoClient, err := mongo.Connect(mongoOptions.Client().ApplyURI(getenv(constants.ENV_MONGODB_URI)))
+	if err != nil {
+		return fmt.Errorf("unable to connect to MongoDB: %w", err)
+	}
 
-	addr := getenv(ENV_ADDR)
+	server := server.NewServer(
+		logger,
+		[]byte(getenv(constants.ENV_JWT_SECRET)),
+		database.NewAuthStore(mongoClient, getenv(constants.ENV_MONGODB_DATABASE), constants.DB_COLLECTION_USER))
+
+	addr := getenv(constants.ENV_ADDR)
 	if addr == "" {
-		return fmt.Errorf("an address for http needs to be specified on %q environment variable", ENV_ADDR)
+		return fmt.Errorf("an address for http needs to be specified on %q environment variable", constants.ENV_ADDR)
 	}
 
 	if err := server.Start(addr); err != nil {
