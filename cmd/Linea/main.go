@@ -32,7 +32,12 @@ func run(getenv func(string) string, stderr io.Writer) error {
 	loggerHandler := log.New(stderr)
 	logger := slog.New(loggerHandler)
 
-	mongoClient, err := mongo.Connect(mongoOptions.Client().ApplyURI(getenv(constants.ENV_MONGODB_URI)))
+	mongoClientURI := getenv(constants.ENV_MONGODB_URI)
+	if mongoClientURI == "" {
+		return fmt.Errorf("the environment variable %q is empty", constants.ENV_MONGODB_URI)
+	}
+
+	mongoClient, err := mongo.Connect(mongoOptions.Client().ApplyURI(mongoClientURI))
 	if err != nil {
 		return fmt.Errorf("unable to connect to MongoDB: %w", err)
 	}
