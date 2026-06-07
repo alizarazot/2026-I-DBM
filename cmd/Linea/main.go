@@ -36,6 +36,7 @@ func run(getenv func(string) string, stderr io.Writer) error {
 	if mongoClientURI == "" {
 		return fmt.Errorf("the environment variable %q is empty", constants.ENV_MONGODB_URI)
 	}
+	logger.Info("trying to connect to MongoDB", "mongoClientURI", mongoClientURI)
 
 	mongoClient, err := mongo.Connect(mongoOptions.Client().ApplyURI(mongoClientURI))
 	if err != nil {
@@ -47,16 +48,15 @@ func run(getenv func(string) string, stderr io.Writer) error {
 		}
 	}()
 
-	mongoDatabase := getenv(constants.ENV_MONGODB_DATABASE)
-
 	var pingResult bson.M
 	pingCtx, pingCtxCancel := context.WithTimeout(ctx, time.Second)
 	defer pingCtxCancel()
-	if err := mongoClient.Database(mongoDatabase).RunCommand(pingCtx, bson.D{{Key: "ping", Value: 1}}).Decode(&pingResult); err != nil {
+	if err := mongoClient.Database("local").RunCommand(pingCtx, bson.D{{Key: "ping", Value: 1}}).Decode(&pingResult); err != nil {
 		return fmt.Errorf("unable to ping database: %w", err)
 	}
-	logger.Info("Successful ping to database", "pingResult", pingResult)
+	logger.Info("successful ping to database", "pingResult", pingResult)
 
+	mongoDatabase := getenv(constants.ENV_MONGODB_DATABASE)
 	server := server.NewServer(
 		logger,
 		[]byte(getenv(constants.ENV_JWT_SECRET)),
