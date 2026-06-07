@@ -21,7 +21,10 @@ func NewServer(logger *slog.Logger, jwtSecret []byte, authStore *database.AuthSt
 	addPublicAPIRoutes(apiPublic, jwtSecret, authStore)
 
 	api := e.Group("/api")
-	api.Use(echojwt.JWT(jwtSecret))
+	api.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  jwtSecret,
+		TokenLookup: "cookie:" + authJWTCookieName,
+	}))
 	addAPIRoutes(api)
 
 	return e

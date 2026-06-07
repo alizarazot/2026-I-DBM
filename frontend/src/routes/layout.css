@@ -1,1 +1,33 @@
 @import 'tailwindcss';
+
+@plugin 'flowbite/plugin';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--color-primary-50: #f5f0ef;
+	--color-primary-100: #f7c1b4;
+	--color-primary-200: #f19581;
+	--color-primary-300: #eb6a4d;
+	--color-primary-400: #e63f19;
+	--color-primary-500: #b23114;
+	--color-primary-600: #7e230e;
+	--color-primary-700: #4b1408;
+	--color-primary-800: #170603;
+}
+
+@source '../../node_modules/flowbite-svelte/dist';
+@source '../../node_modules/flowbite-svelte-icons/dist';
+@source '../../node_modules/flowbite-svelte-blocks/dist';
+
+@layer base {
+	/* Disable chrome cancel button. */
+	input[type='search']::-webkit-search-cancel-button {
+		display: none;
+	}
+
+	button,
+	[role='button'] {
+		cursor: pointer;
+	}
+}

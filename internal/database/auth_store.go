@@ -42,6 +42,7 @@ func NewAuthStore(client *mongo.Client, database string, collection string) *Aut
 }
 
 func (as *AuthStore) AddUser(ctx context.Context, user *model.User, password string) error {
+	// TODO: This should only check for email existence, currently it overwrites emails.
 	if _, err := as.VerifyCredentials(ctx, user.Email, password); err == nil {
 		return ErrAuthUserAlreadyExists
 	}
@@ -83,18 +84,12 @@ func (as *AuthStore) AddUser(ctx context.Context, user *model.User, password str
 
 func (as *AuthStore) VerifyCredentials(ctx context.Context, email string, password string) (*model.User, error) {
 	var userdb modeldb.User
-	if err := as.c.FindOne(ctx, bson.D{
-		{
-			Key: "email",
-			Value: bson.D{
-				{
-					Key:   "$eq",
-					Value: email,
-				},
-			},
-		},
-	}).Decode(&userdb); err != nil {
-		return nil, ErrAuthInvalidCredentials
+	if err := as.c.FindOne(ctx, bson.D{{Key: "email", Value: email}}).Decode(&userdb); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrAuthInvalidCredentials
+		}
+
+		return nil, err
 	}
 
 	hashedPassword := argon2.IDKey([]byte(password), userdb.PasswordSalt, userdb.PasswordTime, userdb.PasswordMemory, userdb.PasswordThreads, userdb.PasswordKeyLen)

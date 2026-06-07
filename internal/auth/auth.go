@@ -8,16 +8,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const jwtExpiration = time.Hour * 24 * 2
+
 type jwtCustomClaims struct {
 	model.User
 	jwt.RegisteredClaims
 }
 
-func CreateJWTToken(jwtSecret []byte, user *model.User) (string, error) {
+func CreateJWTToken(jwtSecret []byte, user *model.User) (string, time.Time, error) {
+	expiration := time.Now().Add(jwtExpiration)
 	claims := &jwtCustomClaims{
 		*user,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 2)),
+			ExpiresAt: jwt.NewNumericDate(expiration),
 		},
 	}
 
@@ -25,8 +28,8 @@ func CreateJWTToken(jwtSecret []byte, user *model.User) (string, error) {
 
 	t, err := token.SignedString(jwtSecret)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
-	return t, nil
+	return t, expiration, nil
 }

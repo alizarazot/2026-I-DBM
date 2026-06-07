@@ -19,7 +19,7 @@ func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, authStore *database.Aut
 }
 
 func addAPIRoutes(e *echo.Group) {
-	e.GET("/ping", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "Pong!")
+	e.GET("/auth", func(c *echo.Context) error {
+		return c.NoContent(http.StatusOK)
 	})
 }
