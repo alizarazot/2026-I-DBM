@@ -5,7 +5,7 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/database"
 
-	"github.com/labstack/echo-jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v5"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
