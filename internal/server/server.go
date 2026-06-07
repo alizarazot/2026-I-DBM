@@ -3,6 +3,7 @@ package server
 import (
 	"log/slog"
 
+	"github.com/alizarazot/2026-i-dbm/frontend"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
 
 	echojwt "github.com/labstack/echo-jwt/v5"
@@ -14,8 +15,16 @@ func NewServer(logger *slog.Logger, jwtSecret []byte, authStore *database.AuthSt
 	e := echo.NewWithConfig(echo.Config{Logger: logger})
 	e.Use(middleware.RequestLogger())
 
-	frontend := e.Group("")
-	addFrontendRoutes(frontend)
+	// Frontend SPA support.
+	f := e.Group("")
+	f.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:       ".",
+		Filesystem: frontend.Files,
+		HTML5:      true,
+	}))
+	f.RouteNotFound("/*", func(c *echo.Context) error {
+		return c.FileFS(frontend.SPAFallbackFile, frontend.Files)
+	})
 
 	apiPublic := e.Group("/api")
 	addPublicAPIRoutes(apiPublic, jwtSecret, authStore)

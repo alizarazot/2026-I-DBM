@@ -8,6 +8,8 @@ import (
 //go:embed "build/*"
 var buildFiles embed.FS
 
+const SPAFallbackFile = "default-spa.html"
+
 var Files fs.FS
 
 func init() {
