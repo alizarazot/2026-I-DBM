@@ -20,7 +20,21 @@ This is a self-managed platform for remote class management, including assistanc
 
 # Deployment
 
-> **_TODO: Dockerfile & Docker Compose File._**
+Both a `Dockerfile` and `docker-compose.yaml` are provided for your convenience. You can simply run the following command to get the platform up and running:
+
+```sh
+APP_PORT=9090 docker compose up --build
+```
+
+To create a user (for example, an admin account or to regain access if you get locked out), use:
+
+```sh
+docker exec -it <container-name> /linea-manager create-user
+```
+
+Replace `<container-name>` with the name Docker Compose assigned to the container (typically `2026-i-dbm-linea-platform-1`).
+
+If you encounter this [error](https://github.com/denoland/deno/issues/34008), the only workaround is to recreate the container and hope the race condition doesn’t happen. As of this writing, a fix hasn’t been released in a Deno Docker image yet.
 
 # Additional information
 
