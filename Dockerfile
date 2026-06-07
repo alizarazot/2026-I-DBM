@@ -28,7 +28,7 @@ RUN go build -v -ldflags="-s -w -buildid=" -trimpath -o /app/Linea ./cmd/Linea
 RUN go build -v -ldflags="-s -w -buildid=" -trimpath -o /app/linea-manager ./cmd/linea-manager
 
 # Run server.
-FROM scratch
+FROM gcr.io/distroless/static-debian13
 
 COPY --from=builder-go /app/Linea /Linea
 COPY --from=builder-go /app/linea-manager /linea-manager
@@ -38,7 +38,6 @@ ENV LINEA_MONGODB_DATABASE="linea-platform-v1"
 
 EXPOSE 9090
 
-# Switch to non-priviliged user.
-USER 1000:1000
+USER nonroot:nonroot
 
 ENTRYPOINT ["/Linea"]
