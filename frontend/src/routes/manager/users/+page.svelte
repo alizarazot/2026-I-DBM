@@ -12,7 +12,8 @@
 		Checkbox,
 		ButtonGroup,
 		List,
-		Li
+		Li,
+		Radio
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -57,6 +58,7 @@
 	let currentPageUsers: User[] = $state([]);
 
 	let searchTerm = $state('');
+	let filterRole = $state('');
 
 	let filteredUsers = $derived(
 		currentPageUsers.filter(
@@ -65,14 +67,23 @@
 	);
 
 	const updateDataAndPagination = async () => {
-		const respPage = await fetch(
-			`/api/manager/users?${new URLSearchParams({ page: currentPage.toString(), limit: usersPerPage.toString() })}`
+		const resp = await fetch(
+			`/api/manager/users?${new URLSearchParams({ page: currentPage.toString(), limit: usersPerPage.toString(), role: filterRole })}`
 		);
-		currentPageUsers = (await respPage.json()).users;
+		const data = await resp.json();
 
-		const respTotal = await fetch('/api/manager/users/total');
-		totalUsers = (await respTotal.json()).total;
+		currentPageUsers = data.users;
+		for (let i = 0; i < currentPageUsers.length; i++) {
+			currentPageUsers[i].info.birthdate = new Date(currentPageUsers[i].info.birthdate);
+		}
+
+		totalUsers = data.totalUsers;
 	};
+
+	$effect(() => {
+		filterRole;
+		updateDataAndPagination();
+	});
 
 	const loadNextPage = () => {
 		if (currentPage + usersPerPage < 0) {
@@ -98,9 +109,9 @@
 	});
 </script>
 
-<Section name="advancedTable" sectionClass="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+<Section name="advancedTable" class="bg-gray-50 p-3 sm:p-5 dark:bg-gray-900">
 	<TableSearch
-		placeholder="Search"
+		placeholder="Search by email"
 		hoverable={true}
 		classes={{
 			root: 'bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden',
@@ -108,6 +119,7 @@
 				'flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4',
 			search: 'w-full md:w-1/2 relative'
 		}}
+		tableClass="overflow-x-scroll block"
 		bind:inputValue={searchTerm}
 	>
 		{#snippet header()}
@@ -117,29 +129,21 @@
 				<Button>
 					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add user
 				</Button>
-				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown simple class="w-44 divide-y divide-gray-100">
-					<DropdownItem>Mass Edit</DropdownItem>
-					<DropdownItem>Delete all</DropdownItem>
-				</Dropdown>
 				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
 				<Dropdown class="w-48 space-y-2 p-3 text-sm">
-					<h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Choose brand</h6>
+					<h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Choose a role</h6>
 					<List tag="dl">
 						<Li>
-							<Checkbox>Apple (56)</Checkbox>
+							<Radio value="" bind:group={filterRole}>All roles</Radio>
 						</Li>
 						<Li>
-							<Checkbox>Microsoft (16)</Checkbox>
+							<Radio value="manager" bind:group={filterRole}>Managers</Radio>
 						</Li>
 						<Li>
-							<Checkbox>Razor (49)</Checkbox>
+							<Radio value="teacher" bind:group={filterRole}>Teachers</Radio>
 						</Li>
 						<Li>
-							<Checkbox>Nikon (12)</Checkbox>
-						</Li>
-						<Li>
-							<Checkbox>BenQ (74)</Checkbox>
+							<Radio value="student" bind:group={filterRole}>Students</Radio>
 						</Li>
 					</List>
 				</Dropdown>
@@ -151,6 +155,9 @@
 			<TableHeadCell class="px-4 py-3" scope="col">Middle name</TableHeadCell>
 			<TableHeadCell class="px-4 py-3" scope="col">First surname</TableHeadCell>
 			<TableHeadCell class="px-4 py-3" scope="col">Second surname</TableHeadCell>
+			<TableHeadCell class="px-4 py-3" scope="col">Role</TableHeadCell>
+			<TableHeadCell class="px-4 py-3" scope="col">Birthdate</TableHeadCell>
+			<TableHeadCell class="px-4 py-3" scope="col">Genre</TableHeadCell>
 		</TableHead>
 		<TableBody class="divide-y">
 			{#if searchTerm !== ''}
@@ -161,6 +168,11 @@
 						<TableBodyCell class="px-4 py-3">{user.info.middleName}</TableBodyCell>
 						<TableBodyCell class="px-4 py-3">{user.info.firstSurname}</TableBodyCell>
 						<TableBodyCell class="px-4 py-3">{user.info.secondSurname}</TableBodyCell>
+						<TableBodyCell class="px-4 py-3 capitalize">{user.role}</TableBodyCell>
+						<TableBodyCell class="px-4 py-3"
+							>{user.info.birthdate.toLocaleDateString()}</TableBodyCell
+						>
+						<TableBodyCell class="px-4 py-3 capitalize">{user.info.genre}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			{:else}
@@ -171,6 +183,11 @@
 						<TableBodyCell class="px-4 py-3">{user.info.middleName}</TableBodyCell>
 						<TableBodyCell class="px-4 py-3">{user.info.firstSurname}</TableBodyCell>
 						<TableBodyCell class="px-4 py-3">{user.info.secondSurname}</TableBodyCell>
+						<TableBodyCell class="px-4 py-3 capitalize">{user.role}</TableBodyCell>
+						<TableBodyCell class="px-4 py-3"
+							>{user.info.birthdate.toLocaleDateString()}</TableBodyCell
+						>
+						<TableBodyCell class="px-4 py-3 capitalize">{user.info.genre}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			{/if}
@@ -181,9 +198,15 @@
 				aria-label="Table navigation"
 			>
 				<span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-					Showing
+					{#if searchTerm == ''}
+						Showing
+					{:else}
+						Searching on
+					{/if}
 					<span class="font-semibold text-gray-900 dark:text-white"
-						>{currentPage * usersPerPage}-{currentPageUsers.length}</span
+						>{currentPageUsers.length != 0
+							? currentPage * usersPerPage + 1
+							: 0}-{currentPageUsers.length}</span
 					>
 					of
 					<span class="font-semibold text-gray-900 dark:text-white">{totalUsers}</span>
