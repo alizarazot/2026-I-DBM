@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
@@ -48,5 +49,27 @@ func handlerSignIn(jwtSecret []byte, authStore *database.AuthStore) echo.Handler
 		})
 
 		return c.NoContent(http.StatusOK)
+	}
+}
+
+func handlerManagerListUsers(userStore *database.UserStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		const pageParam = "page"
+		page, err := echo.QueryParam[uint](c, pageParam)
+		if err != nil {
+			return echo.ErrBadRequest.Wrap(fmt.Errorf("error reading param %q: %w", pageParam, err))
+		}
+		const limitParam = "limit"
+		limit, err := echo.QueryParam[uint](c, limitParam)
+		if err != nil {
+			return echo.ErrBadRequest.Wrap(fmt.Errorf("error reading param %q: %w", limitParam, err))
+		}
+
+		users, err := userStore.GetUsers(c.Request().Context(), page, limit)
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{"users": users})
 	}
 }

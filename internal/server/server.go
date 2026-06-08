@@ -13,7 +13,12 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 )
 
-func NewServer(logger *slog.Logger, jwtSecret []byte, authStore *database.AuthStore) *echo.Echo {
+func NewServer(
+	logger *slog.Logger,
+	jwtSecret []byte,
+	authStore *database.AuthStore,
+	userStore *database.UserStore,
+) *echo.Echo {
 	e := echo.NewWithConfig(echo.Config{Logger: logger})
 	e.Use(middleware.RequestLogger())
 
@@ -39,7 +44,7 @@ func NewServer(logger *slog.Logger, jwtSecret []byte, authStore *database.AuthSt
 			return auth.JWTClaims()
 		},
 	}))
-	addAPIRoutes(api)
+	addAPIRoutes(api, userStore)
 
 	return e
 }

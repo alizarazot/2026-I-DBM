@@ -13,7 +13,7 @@ func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, authStore *database.Aut
 	e.POST("/auth", handlerSignIn(jwtSecret, authStore))
 }
 
-func addAPIRoutes(e *echo.Group) {
+func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
 	// TODO: Sign out route.
 	e.GET("/auth", func(c *echo.Context) error {
 		return c.NoContent(http.StatusOK)
@@ -21,8 +21,13 @@ func addAPIRoutes(e *echo.Group) {
 
 	manager := e.Group("/manager")
 	manager.Use(middlewareRequireRole(model.UserRoleManager))
-	manager.GET("/ping", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "pong")
+	manager.GET("/users", handlerManagerListUsers(userStore))
+	manager.GET("/users/total", func(c *echo.Context) error {
+		total, err := userStore.GetTotalUsers(c.Request().Context())
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+		return c.JSON(http.StatusOK, map[string]any{"total": total})
 	})
 
 	teacher := e.Group("/teacher")

@@ -98,8 +98,12 @@ func (as *AuthStore) VerifyCredentials(ctx context.Context, email string, passwo
 		return nil, ErrAuthInvalidCredentials
 	}
 
-	user := model.User{
-		Email: email,
+	return dbUserToModelUser(userdb), nil
+}
+
+func dbUserToModelUser(userdb modeldb.User) *model.User {
+	return &model.User{
+		Email: userdb.Email,
 		Role:  dbRoleToModelRole(userdb.Role),
 		Info: model.UserInfo{
 			FirstName:     userdb.UserInfo.FirstName,
@@ -110,8 +114,6 @@ func (as *AuthStore) VerifyCredentials(ctx context.Context, email string, passwo
 			Genre:         dbGenreToModelGenre(userdb.UserInfo.Genre),
 		},
 	}
-
-	return &user, nil
 }
 
 func modelRoleToDBRole(role model.UserRole) string {

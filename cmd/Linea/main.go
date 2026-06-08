@@ -60,7 +60,9 @@ func run(getenv func(string) string, stderr io.Writer) error {
 	server := server.NewServer(
 		logger,
 		[]byte(getenv(constants.ENV_JWT_SECRET)),
-		database.NewAuthStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_USER))
+		database.NewAuthStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_USER),
+		database.NewUserStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_USER),
+	)
 
 	addr := getenv(constants.ENV_ADDR)
 	if addr == "" {
