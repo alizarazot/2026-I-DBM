@@ -5,7 +5,7 @@ import (
 	"io/fs"
 )
 
-//go:embed "build/*"
+//go:embed all:build
 var buildFiles embed.FS
 
 const SPAFallbackFile = "default-spa.html"
