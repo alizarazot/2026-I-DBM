@@ -4,7 +4,9 @@ import (
 	"log/slog"
 
 	"github.com/alizarazot/2026-i-dbm/frontend"
+	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/golang-jwt/jwt/v5"
 
 	echojwt "github.com/labstack/echo-jwt/v5"
 	"github.com/labstack/echo/v5"
@@ -33,6 +35,9 @@ func NewServer(logger *slog.Logger, jwtSecret []byte, authStore *database.AuthSt
 	api.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  jwtSecret,
 		TokenLookup: "cookie:" + authJWTCookieName,
+		NewClaimsFunc: func(c *echo.Context) jwt.Claims {
+			return auth.JWTClaims()
+		},
 	}))
 	addAPIRoutes(api)
 

@@ -33,3 +33,11 @@ func CreateJWTToken(jwtSecret []byte, user *model.User) (string, time.Time, erro
 
 	return t, expiration, nil
 }
+
+func ExtractUser(token *jwt.Token) *model.User {
+	return &token.Claims.(*jwtCustomClaims).User
+}
+
+func JWTClaims() jwt.Claims {
+	return &jwtCustomClaims{}
+}
