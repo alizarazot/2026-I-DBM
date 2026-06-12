@@ -69,10 +69,12 @@ require (
 	golang.org/x/tools v0.45.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 	honnef.co/go/tools v0.7.0 // indirect
+	mvdan.cc/gofumpt v0.10.0 // indirect
 )
 
 tool (
 	github.com/air-verse/air
 	golang.org/x/tools/cmd/stringer
 	honnef.co/go/tools/cmd/staticcheck
+	mvdan.cc/gofumpt
 )

@@ -1,0 +1,13 @@
+#!/usr/bin/env dash
+
+set -e
+
+go tool gofumpt -w .
+go vet ./...
+go tool staticcheck ./...
+
+cd frontend
+
+deno task format
+deno task check
+deno task lint
