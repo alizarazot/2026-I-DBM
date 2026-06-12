@@ -53,17 +53,21 @@ func handlerSignIn(jwtSecret []byte, userStore *database.UserStore) echo.Handler
 	}
 }
 
-func handlerManagerGETUsers(userStore *database.UserStore) echo.HandlerFunc {
+func handlerManagerListUsers(userStore *database.UserStore) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		const pageParam = "page"
 		page, err := echo.QueryParam[uint](c, pageParam)
 		if err != nil {
 			return echo.ErrBadRequest.Wrap(fmt.Errorf("error reading param %q: %w", pageParam, err))
 		}
+
 		const limitParam = "limit"
 		limit, err := echo.QueryParam[uint](c, limitParam)
 		if err != nil {
 			return echo.ErrBadRequest.Wrap(fmt.Errorf("error reading param %q: %w", limitParam, err))
+		}
+		if limit < 1 {
+			return echo.ErrBadRequest.Wrap(fmt.Errorf("the provided limit (%d) must be >= 1", limit))
 		}
 
 		const roleParam = "role"
@@ -89,5 +93,35 @@ func handlerManagerGETUsers(userStore *database.UserStore) echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, map[string]any{"users": users, "totalUsers": totalUsers})
+	}
+}
+
+func handlerManagerAddUser(userStore *database.UserStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var userRaw struct {
+			Email           string `json:"email"`
+			InitialPassword string `json:"initialPassword"`
+
+			Role model.UserRole `json:"role"`
+			Info model.UserInfo `json:"info"`
+		}
+		if err := echo.BindBody(c, &userRaw); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		user := model.User{
+			Email: userRaw.Email,
+			Role:  userRaw.Role,
+			Info:  userRaw.Info,
+		}
+		if err := userStore.AddUser(c.Request().Context(), &user, userRaw.InitialPassword); err != nil {
+			if errors.Is(err, database.ErrUserAlreadyExists) {
+				return echo.NewHTTPError(http.StatusConflict, fmt.Sprintf("user %q already exists", user.Email)).Wrap(err)
+			}
+
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return c.NoContent(http.StatusOK)
 	}
 }

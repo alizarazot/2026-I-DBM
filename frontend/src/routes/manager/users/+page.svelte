@@ -11,7 +11,12 @@
 		ButtonGroup,
 		List,
 		Li,
-		Radio
+		Radio,
+		Input,
+		Label,
+		Modal,
+		Select,
+		Datepicker
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -65,7 +70,7 @@
 
 	const updateDataAndPagination = async () => {
 		const resp = await fetch(
-			`/api/manager/users?${new URLSearchParams({ page: currentPage.toString(), limit: usersPerPage.toString(), role: filterRole })}`
+			`/api/manager/list-users?${new URLSearchParams({ page: currentPage.toString(), limit: usersPerPage.toString(), role: filterRole })}`
 		);
 		const data = await resp.json();
 
@@ -105,6 +110,63 @@
 	onMount(() => {
 		updateDataAndPagination();
 	});
+
+	let showAddUserModal = $state(false);
+	const handleSubmitAddUser = async (e: SubmitEvent) => {
+		e.preventDefault();
+
+		showAddUserModal = false;
+
+		const target = e.target as HTMLFormElement;
+
+		const userData: User = {
+			email: addUserEmail,
+			role: addUserRole ?? 'invalid',
+			info: {
+				firstName: addUserFirstName,
+				middleName: addUserMiddleName,
+				firstSurname: addUserFirstSurname,
+				secondSurname: addUserSecondSurname,
+				birthdate:
+					addUserBirthdate ??
+					(() => {
+						throw new Error('invalid user birthdate');
+					})(),
+				genre: addUserGenre ?? 'invalid'
+			}
+		};
+
+		const resp = await fetch(target.action, {
+			method: target.method,
+			headers: new Headers({ 'Content-Type': 'application/json' }),
+			body: JSON.stringify(userData)
+		});
+
+		if (!resp.ok) {
+			throw new Error('error registering user');
+		}
+	};
+
+	const roles: { value: UserRole; name: string }[] = [
+		{ value: 'manager', name: 'Manager' },
+		{ value: 'teacher', name: 'Teacher' },
+		{ value: 'student', name: 'Student' }
+	];
+	const genres: { value: UserGenre; name: string }[] = [
+		{ value: 'male', name: 'Male' },
+		{ value: 'female', name: 'Female' },
+		{ value: 'other', name: 'Other' }
+	];
+
+	let addUserEmail = $state('');
+	let addUserInitialPassword = $state('');
+	let addUserRole: UserRole | undefined = $state(undefined);
+	let addUserFirstName = $state('');
+	let addUserMiddleName = $state('');
+	let addUserFirstSurname = $state('');
+	let addUserSecondSurname = $state('');
+	let addUserBirthdate: Date | undefined = $state(undefined);
+	let addUserGenre: UserGenre | undefined = $state(undefined);
 </script>
 
 <Section name="advancedTable" class="bg-gray-50 p-3 sm:p-5 dark:bg-gray-900">
@@ -124,7 +186,7 @@
 			<div
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-y-0 md:space-x-3"
 			>
-				<Button>
+				<Button onclick={() => (showAddUserModal = true)}>
 					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add user
 				</Button>
 				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
@@ -224,3 +286,64 @@
 		{/snippet}
 	</TableSearch>
 </Section>
+
+<Modal title="Add User" bind:open={showAddUserModal}>
+	<form method="POST" action="/api/manager/add-user" onsubmit={handleSubmitAddUser}>
+		<div class="mb-4 grid gap-4 sm:grid-cols-2">
+			<div>
+				<Label for="email" class="mb-2">Email</Label>
+				<Input type="email" id="email" bind:value={addUserEmail} required />
+			</div>
+			<div>
+				<Label>
+					Role
+					<Select id="genre" class="mt-2" items={roles} bind:value={addUserRole} required />
+				</Label>
+			</div>
+			<div>
+				<Label for="first-name" class="mb-2">First name</Label>
+				<Input type="text" id="first-name" bind:value={addUserFirstName} required />
+			</div>
+			<div>
+				<Label for="middle-name" class="mb-2">Middle name</Label>
+				<Input type="text" id="middle-name" bind:value={addUserMiddleName} />
+			</div>
+			<div>
+				<Label for="first-surname" class="mb-2">First surname</Label>
+				<Input type="text" id="first-surname" bind:value={addUserFirstSurname} required />
+			</div>
+			<div>
+				<Label for="second-surname" class="mb-2">Second surname</Label>
+				<Input type="text" id="second-surname" bind:value={addUserSecondSurname} />
+			</div>
+			<div>
+				<Label for="birthdate" class="mb-2">Birthdate</Label>
+				<Datepicker id="birthdate" bind:value={addUserBirthdate} required />
+			</div>
+			<div>
+				<Label>
+					Genre
+					<Select id="genre" class="mt-2" items={genres} bind:value={addUserGenre} required />
+				</Label>
+			</div>
+			<div class="col-span-2">
+				<Label for="initial-password" class="mb-2">Initial password</Label>
+				<Input type="password" id="initial-password" bind:value={addUserInitialPassword} required />
+			</div>
+			<Button type="submit" class="w-52">
+				<svg
+					class="mr-1 -ml-1 h-6 w-6"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+						clip-rule="evenodd"
+					/></svg
+				>
+				Add user
+			</Button>
+		</div>
+	</form>
+</Modal>
