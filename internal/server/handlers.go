@@ -14,7 +14,7 @@ import (
 
 const authJWTCookieName = "auth-jwt"
 
-func handlerSignIn(jwtSecret []byte, authStore *database.AuthStore) echo.HandlerFunc {
+func handlerSignIn(jwtSecret []byte, userStore *database.UserStore) echo.HandlerFunc {
 	// TODO: Redirect if there is a valid auth cookie.
 	return func(c *echo.Context) error {
 		userCredentials := struct {
@@ -25,8 +25,8 @@ func handlerSignIn(jwtSecret []byte, authStore *database.AuthStore) echo.Handler
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		user, err := authStore.VerifyCredentials(c.Request().Context(), userCredentials.Email, userCredentials.Password)
-		if errors.Is(err, database.ErrAuthInvalidCredentials) {
+		user, err := userStore.VerifyCredentials(c.Request().Context(), userCredentials.Email, userCredentials.Password)
+		if errors.Is(err, database.ErrUserInvalidCredentials) {
 			return c.NoContent(http.StatusUnauthorized)
 		}
 		if err != nil {

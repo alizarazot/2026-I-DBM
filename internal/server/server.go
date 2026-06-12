@@ -16,7 +16,6 @@ import (
 func NewServer(
 	logger *slog.Logger,
 	jwtSecret []byte,
-	authStore *database.AuthStore,
 	userStore *database.UserStore,
 ) *echo.Echo {
 	e := echo.NewWithConfig(echo.Config{Logger: logger})
@@ -34,7 +33,7 @@ func NewServer(
 	})
 
 	apiPublic := e.Group("/api")
-	addPublicAPIRoutes(apiPublic, jwtSecret, authStore)
+	addPublicAPIRoutes(apiPublic, jwtSecret, userStore)
 
 	api := e.Group("/api")
 	api.Use(echojwt.WithConfig(echojwt.Config{

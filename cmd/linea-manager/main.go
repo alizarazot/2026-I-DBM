@@ -141,9 +141,9 @@ func cmdCreateUser(ctx context.Context, args []string) {
 		panic(err)
 	}
 
-	authStore := database.NewAuthStore(ctx.Value(ContextKeyMongoClient).(*mongo.Client), ctx.Value(ContextKeyDatabaseName).(string), constants.DB_COLLECTION_USER)
+	userStore := database.NewUserStore(ctx.Value(ContextKeyMongoClient).(*mongo.Client), ctx.Value(ContextKeyDatabaseName).(string), constants.DB_COLLECTION_USER)
 
-	if err := authStore.AddUser(ctx, &user, password); err != nil {
+	if err := userStore.AddUser(ctx, &user, password); err != nil {
 		panic(err)
 	}
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, authStore *database.AuthStore) {
-	e.POST("/auth", handlerSignIn(jwtSecret, authStore))
+func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, userStore *database.UserStore) {
+	e.POST("/auth", handlerSignIn(jwtSecret, userStore))
 }
 
 func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
