@@ -106,7 +106,8 @@ func (us *UserStore) GetUsers(ctx context.Context, page, limit uint) ([]*model.U
 		mongo.Pipeline{
 			bson.D{{Key: "$skip", Value: page * limit}},
 			bson.D{{Key: "$limit", Value: limit}},
-		})
+		},
+	)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -136,7 +137,8 @@ func (us *UserStore) GetUsersByRole(ctx context.Context, role model.UserRole, pa
 			bson.D{{Key: "$match", Value: bson.D{{Key: "role", Value: role.CanonicalString()}}}},
 			bson.D{{Key: "$skip", Value: page * limit}},
 			bson.D{{Key: "$limit", Value: limit}},
-		})
+		},
+	)
 	if err != nil {
 		return nil, 0, err
 	}
