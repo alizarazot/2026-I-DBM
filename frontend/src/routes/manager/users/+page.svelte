@@ -8,8 +8,6 @@
 		TableSearch,
 		Button,
 		Dropdown,
-		DropdownItem,
-		Checkbox,
 		ButtonGroup,
 		List,
 		Li,
@@ -18,7 +16,6 @@
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
 		PlusOutline,
-		ChevronDownOutline,
 		FilterSolid,
 		ChevronRightOutline,
 		ChevronLeftOutline
@@ -81,7 +78,8 @@
 	};
 
 	$effect(() => {
-		filterRole;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		filterRole; // To force update when [filterRole] changes.
 		updateDataAndPagination();
 	});
 

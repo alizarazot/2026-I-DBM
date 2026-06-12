@@ -17,7 +17,7 @@ func NewUserStore(client *mongo.Client, database string, collection string) *Use
 	return &UserStore{c: client.Database(database).Collection(collection)}
 }
 
-func (us *UserStore) GetUsers(ctx context.Context, page, limit uint) ([]*model.User, error) {
+func (us *UserStore) GetUsers(ctx context.Context, page, limit uint) ([]*model.User, uint, error) {
 	cursor, err := us.c.Aggregate(
 		ctx,
 		mongo.Pipeline{
@@ -25,12 +25,12 @@ func (us *UserStore) GetUsers(ctx context.Context, page, limit uint) ([]*model.U
 			bson.D{{Key: "$limit", Value: limit}},
 		})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var usersdb []modeldb.User
 	if err := cursor.All(ctx, &usersdb); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	users := make([]*model.User, len(usersdb))
@@ -38,10 +38,40 @@ func (us *UserStore) GetUsers(ctx context.Context, page, limit uint) ([]*model.U
 		users[i] = dbUserToModelUser(userdb)
 	}
 
-	return users, nil
+	count, err := us.c.CountDocuments(ctx, bson.D{})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, uint(count), nil
 }
 
-func (us *UserStore) GetTotalUsers(ctx context.Context) (uint, error) {
-	count, err := us.c.CountDocuments(ctx, bson.D{})
-	return uint(count), err
+func (us *UserStore) GetUsersByRole(ctx context.Context, role model.UserRole, page, limit uint) ([]*model.User, uint, error) {
+	cursor, err := us.c.Aggregate(
+		ctx,
+		mongo.Pipeline{
+			bson.D{{Key: "$match", Value: bson.D{{Key: "role", Value: role.CanonicalString()}}}},
+			bson.D{{Key: "$skip", Value: page * limit}},
+			bson.D{{Key: "$limit", Value: limit}},
+		})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var usersdb []modeldb.User
+	if err := cursor.All(ctx, &usersdb); err != nil {
+		return nil, 0, err
+	}
+
+	users := make([]*model.User, len(usersdb))
+	for i, userdb := range usersdb {
+		users[i] = dbUserToModelUser(userdb)
+	}
+
+	count, err := us.c.CountDocuments(ctx, bson.D{{Key: "role", Value: role.CanonicalString()}})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, uint(count), nil
 }

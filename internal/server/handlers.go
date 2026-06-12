@@ -7,6 +7,7 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/model"
 
 	"github.com/labstack/echo/v5"
 )
@@ -52,7 +53,7 @@ func handlerSignIn(jwtSecret []byte, authStore *database.AuthStore) echo.Handler
 	}
 }
 
-func handlerManagerListUsers(userStore *database.UserStore) echo.HandlerFunc {
+func handlerManagerGETUsers(userStore *database.UserStore) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		const pageParam = "page"
 		page, err := echo.QueryParam[uint](c, pageParam)
@@ -65,11 +66,28 @@ func handlerManagerListUsers(userStore *database.UserStore) echo.HandlerFunc {
 			return echo.ErrBadRequest.Wrap(fmt.Errorf("error reading param %q: %w", limitParam, err))
 		}
 
-		users, err := userStore.GetUsers(c.Request().Context(), page, limit)
+		const roleParam = "role"
+		roleRaw := c.QueryParam(roleParam)
+
+		role := model.NewUserRole(roleRaw)
+		if roleRaw != "" && role == model.UserRoleInvalid {
+			return echo.ErrBadRequest.Wrap(fmt.Errorf("unknown role %q", roleRaw))
+		}
+
+		if role == model.UserRoleInvalid {
+			users, totalUsers, err := userStore.GetUsers(c.Request().Context(), page, limit)
+			if err != nil {
+				return echo.ErrInternalServerError.Wrap(err)
+			}
+
+			return c.JSON(http.StatusOK, map[string]any{"users": users, "totalUsers": totalUsers})
+		}
+
+		users, totalUsers, err := userStore.GetUsersByRole(c.Request().Context(), role, page, limit)
 		if err != nil {
 			return echo.ErrInternalServerError.Wrap(err)
 		}
 
-		return c.JSON(http.StatusOK, map[string]any{"users": users})
+		return c.JSON(http.StatusOK, map[string]any{"users": users, "totalUsers": totalUsers})
 	}
 }

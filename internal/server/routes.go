@@ -21,15 +21,7 @@ func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
 
 	manager := e.Group("/manager")
 	manager.Use(middlewareRequireRole(model.UserRoleManager))
-	manager.GET("/users", handlerManagerListUsers(userStore))
-	manager.GET("/users/total", func(c *echo.Context) error {
-		total, err := userStore.GetTotalUsers(c.Request().Context())
-		if err != nil {
-			return echo.ErrInternalServerError.Wrap(err)
-		}
-		return c.JSON(http.StatusOK, map[string]any{"total": total})
-	})
-
+	manager.GET("/users", handlerManagerGETUsers(userStore))
 	teacher := e.Group("/teacher")
 	teacher.Use(middlewareRequireRole(model.UserRoleTeacher))
 	teacher.GET("/ping", func(c *echo.Context) error {

@@ -61,14 +61,14 @@ func (as *AuthStore) AddUser(ctx context.Context, user *model.User, password str
 
 	userdb.PasswordHash = argon2.IDKey([]byte(password), userdb.PasswordSalt, userdb.PasswordTime, userdb.PasswordMemory, userdb.PasswordThreads, userdb.PasswordKeyLen)
 
-	userdb.Role = modelRoleToDBRole(user.Role)
+	userdb.Role = user.Role.CanonicalString()
 	userdb.UserInfo = modeldb.UserInfo{
 		FirstName:     user.Info.FirstName,
 		MiddleName:    user.Info.MiddleName,
 		FirstSurname:  user.Info.FirstSurname,
 		SecondSurname: user.Info.SecondSurname,
 		Birthdate:     user.Info.Birthdate,
-		Genre:         modelGenreToDBGenre(user.Info.Genre),
+		Genre:         user.Info.Genre.CanonicalString(),
 	}
 
 	userdb.CreatedAt = time.Now()
@@ -104,66 +104,14 @@ func (as *AuthStore) VerifyCredentials(ctx context.Context, email string, passwo
 func dbUserToModelUser(userdb modeldb.User) *model.User {
 	return &model.User{
 		Email: userdb.Email,
-		Role:  dbRoleToModelRole(userdb.Role),
+		Role:  model.NewUserRole(userdb.Role),
 		Info: model.UserInfo{
 			FirstName:     userdb.UserInfo.FirstName,
 			MiddleName:    userdb.UserInfo.MiddleName,
 			FirstSurname:  userdb.UserInfo.FirstSurname,
 			SecondSurname: userdb.UserInfo.SecondSurname,
 			Birthdate:     userdb.UserInfo.Birthdate,
-			Genre:         dbGenreToModelGenre(userdb.UserInfo.Genre),
+			Genre:         model.NewUserGenre(userdb.UserInfo.Genre),
 		},
-	}
-}
-
-func modelRoleToDBRole(role model.UserRole) string {
-	switch role {
-	case model.UserRoleManager:
-		return "manager"
-	case model.UserRoleTeacher:
-		return "teacher"
-	case model.UserRoleStudent:
-		return "student"
-	default:
-		panic("invalid role")
-	}
-}
-
-func dbRoleToModelRole(role string) model.UserRole {
-	switch role {
-	case "manager":
-		return model.UserRoleManager
-	case "teacher":
-		return model.UserRoleTeacher
-	case "student":
-		return model.UserRoleStudent
-	default:
-		panic("invalid role")
-	}
-}
-
-func modelGenreToDBGenre(genre model.UserGenre) string {
-	switch genre {
-	case model.UserGenreMale:
-		return "male"
-	case model.UserGenreFemale:
-		return "female"
-	case model.UserGenreOther:
-		return "other"
-	default:
-		panic("invalid genre")
-	}
-}
-
-func dbGenreToModelGenre(genre string) model.UserGenre {
-	switch genre {
-	case "male":
-		return model.UserGenreMale
-	case "female":
-		return model.UserGenreFemale
-	case "other":
-		return model.UserGenreOther
-	default:
-		panic("invalid genre")
 	}
 }
