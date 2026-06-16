@@ -98,23 +98,24 @@ func handlerManagerListUsers(userStore *database.UserStore) echo.HandlerFunc {
 
 func handlerManagerAddUser(userStore *database.UserStore) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		var userRaw struct {
-			Email           string `json:"email"`
+		var data struct {
+			User struct {
+				Email string         `json:"email"`
+				Role  model.UserRole `json:"role"`
+				Info  model.UserInfo `json:"info"`
+			} `json:"user"`
 			InitialPassword string `json:"initialPassword"`
-
-			Role model.UserRole `json:"role"`
-			Info model.UserInfo `json:"info"`
 		}
-		if err := echo.BindBody(c, &userRaw); err != nil {
+		if err := echo.BindBody(c, &data); err != nil {
 			return echo.ErrBadRequest.Wrap(err)
 		}
 
 		user := model.User{
-			Email: userRaw.Email,
-			Role:  userRaw.Role,
-			Info:  userRaw.Info,
+			Email: data.User.Email,
+			Role:  data.User.Role,
+			Info:  data.User.Info,
 		}
-		if err := userStore.AddUser(c.Request().Context(), &user, userRaw.InitialPassword); err != nil {
+		if err := userStore.AddUser(c.Request().Context(), &user, data.InitialPassword); err != nil {
 			if errors.Is(err, database.ErrUserAlreadyExists) {
 				return echo.NewHTTPError(http.StatusConflict, fmt.Sprintf("user %q already exists", user.Email)).Wrap(err)
 			}

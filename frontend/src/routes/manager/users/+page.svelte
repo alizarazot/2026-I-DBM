@@ -11,12 +11,7 @@
 		ButtonGroup,
 		List,
 		Li,
-		Radio,
-		Input,
-		Label,
-		Modal,
-		Select,
-		Datepicker
+		Radio
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -25,42 +20,43 @@
 		ChevronRightOutline,
 		ChevronLeftOutline
 	} from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
 
-	type UserRole = 'invalid' | 'manager' | 'teacher' | 'student';
-	type UserGenre = 'invalid' | 'male' | 'female' | 'other';
+	import UserModalForm from '$lib/components/manager/UserModalForm.svelte';
 
-	interface UserInfo {
-		firstName: string;
-		middleName: string;
-		firstSurname: string;
-		secondSurname: string;
-		birthdate: Date;
-		genre: UserGenre;
-	}
+	import { createUser, listUsers, updateUser } from '$lib/api/manager';
+	import type { User, UserRole } from '$lib/api/model';
 
-	interface User {
-		email: string;
-		role: UserRole;
-		info: UserInfo;
-	}
+	const USERS_PER_PAGE = 8;
+	const PAGINATION_PADDING = 3;
 
-	const usersPerPage = 10;
-
-	let totalUsers = $state(0);
-	let endPage = $derived(Math.floor(totalUsers / usersPerPage));
-
-	let currentPage = $state(0);
-
-	let pagesToShow = $derived.by(() => {
-		const startPage = Math.min(1, currentPage);
-		return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
-	});
+	let filterRole: UserRole | null = $state(null);
+	let currentPageNumber = $state(0);
 
 	let currentPageUsers: User[] = $state([]);
+	let totalUsers = $state(0);
+
+	const updateData = async (
+		pageNumber: number,
+		filterRole: UserRole | null
+	): Promise<[User[], number]> => {
+		return await listUsers(pageNumber, USERS_PER_PAGE, filterRole);
+	};
+
+	$effect(() => {
+		updateData(currentPageNumber, filterRole).then(([users, total]) => {
+			currentPageUsers = users;
+			totalUsers = total;
+		});
+	});
 
 	let searchTerm = $state('');
-	let filterRole = $state('');
+
+	let lastPage = $derived(Math.floor(totalUsers / USERS_PER_PAGE) - 1);
+	let pageNumbersToShow = $derived.by(() => {
+		const startPage = Math.max(1, currentPageNumber - PAGINATION_PADDING);
+		const endPage = Math.min(lastPage + 1, currentPageNumber + PAGINATION_PADDING);
+		return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+	});
 
 	let filteredUsers = $derived(
 		currentPageUsers.filter(
@@ -68,105 +64,33 @@
 		)
 	);
 
-	const updateDataAndPagination = async () => {
-		const resp = await fetch(
-			`/api/manager/list-users?${new URLSearchParams({ page: currentPage.toString(), limit: usersPerPage.toString(), role: filterRole })}`
-		);
-		const data = await resp.json();
-
-		currentPageUsers = data.users;
-		for (let i = 0; i < currentPageUsers.length; i++) {
-			currentPageUsers[i].info.birthdate = new Date(currentPageUsers[i].info.birthdate);
-		}
-
-		totalUsers = data.totalUsers;
-	};
-
-	$effect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-		filterRole; // To force update when [filterRole] changes.
-		updateDataAndPagination();
-	});
-
 	const loadNextPage = () => {
-		if (currentPage + usersPerPage < 0) {
-			currentPage += usersPerPage;
-			updateDataAndPagination();
-		}
+		currentPageNumber++;
 	};
-
 	const loadPreviousPage = () => {
-		if (currentPage - usersPerPage >= 0) {
-			currentPage -= usersPerPage;
-			updateDataAndPagination();
-		}
+		currentPageNumber--;
 	};
-
 	const goToPage = (pageNumber: number) => {
-		currentPage = (pageNumber - 1) * usersPerPage;
-		updateDataAndPagination();
+		currentPageNumber = pageNumber - 1;
 	};
 
-	onMount(() => {
-		updateDataAndPagination();
-	});
+	let modalUser = $state<User | null>(null);
+	let showModal = $state(false);
 
-	let showAddUserModal = $state(false);
-	const handleSubmitAddUser = async (e: SubmitEvent) => {
-		e.preventDefault();
+	const addUser = async (): Promise<void> => {
+		modalUser = null;
+		showModal = true;
+	};
 
-		showAddUserModal = false;
-
-		const target = e.target as HTMLFormElement;
-
-		const userData: User = {
-			email: addUserEmail,
-			role: addUserRole ?? 'invalid',
-			info: {
-				firstName: addUserFirstName,
-				middleName: addUserMiddleName,
-				firstSurname: addUserFirstSurname,
-				secondSurname: addUserSecondSurname,
-				birthdate:
-					addUserBirthdate ??
-					(() => {
-						throw new Error('invalid user birthdate');
-					})(),
-				genre: addUserGenre ?? 'invalid'
-			}
-		};
-
-		const resp = await fetch(target.action, {
-			method: target.method,
-			headers: new Headers({ 'Content-Type': 'application/json' }),
-			body: JSON.stringify(userData)
-		});
-
-		if (!resp.ok) {
-			throw new Error('error registering user');
+	const handleModalOnSave = async (user: User, initialPassword: string | null): Promise<void> => {
+		if (initialPassword) {
+			await createUser(user, initialPassword);
+		} else {
+			await updateUser(user);
 		}
+
+		[currentPageUsers, totalUsers] = await updateData(currentPageNumber, filterRole);
 	};
-
-	const roles: { value: UserRole; name: string }[] = [
-		{ value: 'manager', name: 'Manager' },
-		{ value: 'teacher', name: 'Teacher' },
-		{ value: 'student', name: 'Student' }
-	];
-	const genres: { value: UserGenre; name: string }[] = [
-		{ value: 'male', name: 'Male' },
-		{ value: 'female', name: 'Female' },
-		{ value: 'other', name: 'Other' }
-	];
-
-	let addUserEmail = $state('');
-	let addUserInitialPassword = $state('');
-	let addUserRole: UserRole | undefined = $state(undefined);
-	let addUserFirstName = $state('');
-	let addUserMiddleName = $state('');
-	let addUserFirstSurname = $state('');
-	let addUserSecondSurname = $state('');
-	let addUserBirthdate: Date | undefined = $state(undefined);
-	let addUserGenre: UserGenre | undefined = $state(undefined);
 </script>
 
 <Section name="advancedTable" class="bg-gray-50 p-3 sm:p-5 dark:bg-gray-900">
@@ -177,16 +101,16 @@
 			root: 'bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden',
 			inner:
 				'flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4',
-			search: 'w-full md:w-1/2 relative'
+			search: 'w-full md:w-1/2 relative',
+			table: 'overflow-x-scroll block'
 		}}
-		tableClass="overflow-x-scroll block"
 		bind:inputValue={searchTerm}
 	>
 		{#snippet header()}
 			<div
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-y-0 md:space-x-3"
 			>
-				<Button onclick={() => (showAddUserModal = true)}>
+				<Button onclick={addUser}>
 					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add user
 				</Button>
 				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
@@ -265,20 +189,20 @@
 					{/if}
 					<span class="font-semibold text-gray-900 dark:text-white"
 						>{currentPageUsers.length != 0
-							? currentPage * usersPerPage + 1
+							? currentPageNumber * USERS_PER_PAGE + 1
 							: 0}-{currentPageUsers.length}</span
 					>
 					of
 					<span class="font-semibold text-gray-900 dark:text-white">{totalUsers}</span>
 				</span>
 				<ButtonGroup>
-					<Button onclick={loadPreviousPage} disabled={currentPage === 0}
+					<Button onclick={loadPreviousPage} disabled={currentPageNumber === 0}
 						><ChevronLeftOutline size="xs" class="m-1.5" /></Button
 					>
-					{#each pagesToShow as pageNumber (pageNumber)}
+					{#each pageNumbersToShow as pageNumber (pageNumber)}
 						<Button onclick={() => goToPage(pageNumber)}>{pageNumber}</Button>
 					{/each}
-					<Button onclick={loadNextPage} disabled={currentPage === endPage}
+					<Button onclick={loadNextPage} disabled={currentPageNumber === lastPage}
 						><ChevronRightOutline size="xs" class="m-1.5" /></Button
 					>
 				</ButtonGroup>
@@ -287,63 +211,4 @@
 	</TableSearch>
 </Section>
 
-<Modal title="Add User" bind:open={showAddUserModal}>
-	<form method="POST" action="/api/manager/add-user" onsubmit={handleSubmitAddUser}>
-		<div class="mb-4 grid gap-4 sm:grid-cols-2">
-			<div>
-				<Label for="email" class="mb-2">Email</Label>
-				<Input type="email" id="email" bind:value={addUserEmail} required />
-			</div>
-			<div>
-				<Label>
-					Role
-					<Select id="genre" class="mt-2" items={roles} bind:value={addUserRole} required />
-				</Label>
-			</div>
-			<div>
-				<Label for="first-name" class="mb-2">First name</Label>
-				<Input type="text" id="first-name" bind:value={addUserFirstName} required />
-			</div>
-			<div>
-				<Label for="middle-name" class="mb-2">Middle name</Label>
-				<Input type="text" id="middle-name" bind:value={addUserMiddleName} />
-			</div>
-			<div>
-				<Label for="first-surname" class="mb-2">First surname</Label>
-				<Input type="text" id="first-surname" bind:value={addUserFirstSurname} required />
-			</div>
-			<div>
-				<Label for="second-surname" class="mb-2">Second surname</Label>
-				<Input type="text" id="second-surname" bind:value={addUserSecondSurname} />
-			</div>
-			<div>
-				<Label for="birthdate" class="mb-2">Birthdate</Label>
-				<Datepicker id="birthdate" bind:value={addUserBirthdate} required />
-			</div>
-			<div>
-				<Label>
-					Genre
-					<Select id="genre" class="mt-2" items={genres} bind:value={addUserGenre} required />
-				</Label>
-			</div>
-			<div class="col-span-2">
-				<Label for="initial-password" class="mb-2">Initial password</Label>
-				<Input type="password" id="initial-password" bind:value={addUserInitialPassword} required />
-			</div>
-			<Button type="submit" class="w-52">
-				<svg
-					class="mr-1 -ml-1 h-6 w-6"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-					xmlns="http://www.w3.org/2000/svg"
-					><path
-						fill-rule="evenodd"
-						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-						clip-rule="evenodd"
-					/></svg
-				>
-				Add user
-			</Button>
-		</div>
-	</form>
-</Modal>
+<UserModalForm bind:showModal onsave={handleModalOnSave} bind:user={modalUser} />

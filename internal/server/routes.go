@@ -21,8 +21,8 @@ func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
 
 	manager := e.Group("/manager")
 	manager.Use(middlewareRequireRole(model.UserRoleManager))
-	manager.GET("/list-users", handlerManagerListUsers(userStore))
-	manager.POST("/add-user", handlerManagerAddUser(userStore))
+	manager.GET("/users", handlerManagerListUsers(userStore))
+	manager.POST("/user", handlerManagerAddUser(userStore))
 
 	teacher := e.Group("/teacher")
 	teacher.Use(middlewareRequireRole(model.UserRoleTeacher))
