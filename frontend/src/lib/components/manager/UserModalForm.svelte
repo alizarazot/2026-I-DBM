@@ -112,7 +112,11 @@
 		<div class="mb-4 grid gap-4 sm:grid-cols-2">
 			<div>
 				<Label for="email" class="mb-2">Email</Label>
-				<Input type="email" id="email" bind:value={formData.email} required />
+				{#if !user}
+					<Input type="email" id="email" bind:value={formData.email} required />
+				{:else}
+					<Input type="email" id="email" bind:value={formData.email} readonly />
+				{/if}
 			</div>
 			<div>
 				<Label>
@@ -146,27 +150,35 @@
 					<Select id="genre" class="mt-2" items={GENRES} bind:value={formData.genre} required />
 				</Label>
 			</div>
-			<div class="col-span-2">
-				<Label for="initial-password" class="mb-2">Initial password</Label>
-				<Input
-					type="password"
-					id="initial-password"
-					bind:value={formData.initialPassword}
-					required
-				/>
-			</div>
+
+			{#if !user}
+				<div class="col-span-2">
+					<Label for="initial-password" class="mb-2">Initial password</Label>
+					<Input
+						type="password"
+						id="initial-password"
+						bind:value={formData.initialPassword}
+						required
+					/>
+				</div>
+			{:else}
+				<div class="col-span-2"></div>
+			{/if}
+
 			<Button type="submit" class="w-52">
-				<svg
-					class="mr-1 -ml-1 h-6 w-6"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-					xmlns="http://www.w3.org/2000/svg"
-					><path
-						fill-rule="evenodd"
-						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-						clip-rule="evenodd"
-					/></svg
-				>
+				{#if !user}
+					<svg
+						class="mr-1 -ml-1 h-6 w-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+							clip-rule="evenodd"
+						/></svg
+					>
+				{/if}
 				{title}
 			</Button>
 		</div>

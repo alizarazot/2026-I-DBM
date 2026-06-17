@@ -23,7 +23,7 @@
 
 	import UserModalForm from '$lib/components/manager/UserModalForm.svelte';
 
-	import { createUser, listUsers, updateUser } from '$lib/api/manager';
+	import { createUser, listUsers, updateUser, deleteUser } from '$lib/api/manager';
 	import type { User, UserRole } from '$lib/api/model';
 
 	const USERS_PER_PAGE = 8;
@@ -64,6 +64,8 @@
 		)
 	);
 
+	const renderUsers = $derived(searchTerm != '' ? filteredUsers : currentPageUsers);
+
 	const loadNextPage = () => {
 		currentPageNumber++;
 	};
@@ -77,9 +79,19 @@
 	let modalUser = $state<User | null>(null);
 	let showModal = $state(false);
 
-	const addUser = async (): Promise<void> => {
+	const addUser = (): void => {
 		modalUser = null;
 		showModal = true;
+	};
+
+	const editUser = (user: User): void => {
+		modalUser = user;
+		showModal = true;
+	};
+
+	const handlerDeleteUser = async (email: string): Promise<void> => {
+		await deleteUser(email);
+		[currentPageUsers, totalUsers] = await updateData(currentPageNumber, filterRole);
 	};
 
 	const handleModalOnSave = async (user: User, initialPassword: string | null): Promise<void> => {
@@ -142,39 +154,38 @@
 			<TableHeadCell class="px-4 py-3" scope="col">Role</TableHeadCell>
 			<TableHeadCell class="px-4 py-3" scope="col">Birthdate</TableHeadCell>
 			<TableHeadCell class="px-4 py-3" scope="col">Genre</TableHeadCell>
+			<TableHeadCell />
+			<TableHeadCell />
 		</TableHead>
 		<TableBody class="divide-y">
-			{#if searchTerm !== ''}
-				{#each filteredUsers as user (user.email)}
-					<TableBodyRow>
-						<TableBodyCell class="px-4 py-3">{user.email}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.firstName}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.middleName}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.firstSurname}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.secondSurname}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3 capitalize">{user.role}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3"
-							>{user.info.birthdate.toLocaleDateString()}</TableBodyCell
-						>
-						<TableBodyCell class="px-4 py-3 capitalize">{user.info.genre}</TableBodyCell>
-					</TableBodyRow>
-				{/each}
-			{:else}
-				{#each currentPageUsers as user (user.email)}
-					<TableBodyRow>
-						<TableBodyCell class="px-4 py-3">{user.email}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.firstName}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.middleName}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.firstSurname}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3">{user.info.secondSurname}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3 capitalize">{user.role}</TableBodyCell>
-						<TableBodyCell class="px-4 py-3"
-							>{user.info.birthdate.toLocaleDateString()}</TableBodyCell
-						>
-						<TableBodyCell class="px-4 py-3 capitalize">{user.info.genre}</TableBodyCell>
-					</TableBodyRow>
-				{/each}
-			{/if}
+			{#each renderUsers as user (user.email)}
+				<TableBodyRow>
+					<TableBodyCell class="px-4 py-3">{user.email}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3">{user.info.firstName}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3">{user.info.middleName}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3">{user.info.firstSurname}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3">{user.info.secondSurname}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3 capitalize">{user.role}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3">{user.info.birthdate.toLocaleDateString()}</TableBodyCell
+					>
+					<TableBodyCell class="px-4 py-3 capitalize">{user.info.genre}</TableBodyCell>
+					<TableBodyCell class="px-4 py-3"
+						><Button
+							onclick={() => {
+								editUser(user);
+							}}>Edit</Button
+						></TableBodyCell
+					>
+					<TableBodyCell class="px-4 py-3"
+						><Button
+							color="red"
+							onclick={() => {
+								handlerDeleteUser(user.email);
+							}}>Delete</Button
+						></TableBodyCell
+					>
+				</TableBodyRow>
+			{/each}
 		</TableBody>
 		{#snippet footer()}
 			<div

@@ -17,6 +17,7 @@ import (
 
 var (
 	ErrUserAlreadyExists      = errors.New("user already exists")
+	ErrUserNotExists          = errors.New("user doesn't exists")
 	ErrUserInvalidCredentials = errors.New("invalid credentials")
 )
 
@@ -75,6 +76,47 @@ func (us *UserStore) AddUser(ctx context.Context, user *model.User, password str
 
 	_, err := us.c.InsertOne(ctx, userdb)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (us *UserStore) EditUser(ctx context.Context, user *model.User) error {
+	var userdb modeldb.User
+	if err := us.c.FindOne(ctx, bson.D{{Key: "email", Value: user.Email}}).Decode(&userdb); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrUserNotExists
+		}
+
+		return err
+	}
+
+	userdb.Email = user.Email
+	userdb.Role = user.Role.CanonicalString()
+	userdb.UserInfo = modeldb.UserInfo{
+		FirstName:     user.Info.FirstName,
+		MiddleName:    user.Info.MiddleName,
+		FirstSurname:  user.Info.FirstSurname,
+		SecondSurname: user.Info.SecondSurname,
+		Birthdate:     user.Info.Birthdate,
+		Genre:         user.Info.Genre.CanonicalString(),
+	}
+	userdb.UpdatedAt = userdb.CreatedAt
+
+	_, err := us.c.ReplaceOne(ctx, bson.D{{Key: "email", Value: user.Email}}, userdb)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (us *UserStore) DeleteUser(ctx context.Context, email string) error {
+	if _, err := us.c.DeleteOne(ctx, bson.D{{Key: "email", Value: email}}); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrUserNotExists
+		}
 		return err
 	}
 

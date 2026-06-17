@@ -47,3 +47,13 @@ export const updateUser = async (user: User): Promise<void> => {
 		throw new Error('error updating user');
 	}
 };
+
+export const deleteUser = async (email: string): Promise<void> => {
+	const resp = await fetch(`${MANAGER_ENDPOINT}/user?${new URLSearchParams({ email: email })}`, {
+		method: 'DELETE'
+	});
+
+	if (!resp.ok) {
+		throw new Error('error deleting user');
+	}
+};

@@ -126,3 +126,50 @@ func handlerManagerAddUser(userStore *database.UserStore) echo.HandlerFunc {
 		return c.NoContent(http.StatusOK)
 	}
 }
+
+func handlerManagerEditUser(userStore *database.UserStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var data struct {
+			User struct {
+				Email string         `json:"email"`
+				Role  model.UserRole `json:"role"`
+				Info  model.UserInfo `json:"info"`
+			} `json:"user"`
+		}
+		if err := echo.BindBody(c, &data); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		user := model.User{
+			Email: data.User.Email,
+			Role:  data.User.Role,
+			Info:  data.User.Info,
+		}
+		if err := userStore.EditUser(c.Request().Context(), &user); err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return c.NoContent(http.StatusOK)
+	}
+}
+
+func handlerManagerDeleteUser(userStore *database.UserStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var data struct {
+			Email string `query:"email"`
+		}
+		if err := c.Bind(&data); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		if err := userStore.DeleteUser(c.Request().Context(), data.Email); err != nil {
+			if errors.Is(err, database.ErrUserNotExists) {
+				return echo.ErrNotFound.Wrap(err)
+			}
+
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return nil
+	}
+}
