@@ -7,6 +7,7 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/mail"
 	"github.com/alizarazot/2026-i-dbm/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v5"
@@ -154,7 +155,7 @@ func handlerManagerListCFCs(userStore *database.UserStore, cfcStore *database.CF
 	}
 }
 
-func handlerManagerAddCFCAnswer(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+func handlerManagerAddCFCAnswer(mailService *mail.Service, userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		var data struct {
 			CFCID  string `json:"cfcId"`
@@ -177,6 +178,22 @@ func handlerManagerAddCFCAnswer(userStore *database.UserStore, cfcStore *databas
 
 		if err := cfcStore.AddCFCAnswer(c.Request().Context(), data.Answer, data.CFCID, id); err != nil {
 			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		inc, err := cfcStore.GetCFC(c.Request().Context(), data.CFCID)
+		if err != nil {
+			c.Logger().Error("couldn't get cfc", "err", err)
+			return c.NoContent(http.StatusOK)
+		}
+
+		email, err := userStore.GetUserEmail(c.Request().Context(), inc.UserID)
+		if err != nil {
+			c.Logger().Error("couldn't user email", "err", err)
+			return c.NoContent(http.StatusOK)
+		}
+
+		if err := mailService.SendPDF(email, fmt.Sprintf("Your %s has been answered!", inc.CFC.Category.CanonicalString()), fmt.Sprintf("Answer: %s", data.Answer), fmt.Sprintf("Subject: %s\n\nCategory: %s\n\nDetails: %s\n\nAnswer: %s", inc.CFC.Subject, inc.CFC.Category.CanonicalString(), inc.CFC.Details, data.Answer)); err != nil {
+			c.Logger().Error("error sending mail", "err", err)
 		}
 
 		return c.NoContent(http.StatusOK)

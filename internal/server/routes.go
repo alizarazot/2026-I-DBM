@@ -50,7 +50,7 @@ func addAPIRoutes(e *echo.Group, mailService *mail.Service, userStore *database.
 	manager.DELETE("/user", handlerManagerDeleteUser(userStore))
 	manager.GET("/cfcs", handlerManagerListCFCs(userStore, cfcStore))
 	manager.GET("/cfc-answer", handlerManagerGetCFCAnswer(userStore, cfcStore))
-	manager.POST("/cfc-answer", handlerManagerAddCFCAnswer(userStore, cfcStore))
+	manager.POST("/cfc-answer", handlerManagerAddCFCAnswer(mailService, userStore, cfcStore))
 
 	teacher := e.Group("/teacher")
 	teacher.Use(middlewareRequireRole(model.UserRoleTeacher))
