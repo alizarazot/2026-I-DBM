@@ -25,21 +25,7 @@
 				/>
 			{/snippet}
 		</SidebarItem>
-		<SidebarItem label="Classes" href="/manager/users">
-			{#snippet icon()}
-				<ChartOutline
-					class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-				/>
-			{/snippet}
-		</SidebarItem>
-		<SidebarItem label="Schedules" href="/manager/users">
-			{#snippet icon()}
-				<ChartOutline
-					class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-				/>
-			{/snippet}
-		</SidebarItem>
-		<SidebarItem label="Feedback & Complaints" href="/manager/users">
+		<SidebarItem label="Feedback & Complaints" href="/manager/feedback-and-complaints">
 			{#snippet icon()}
 				<ChartOutline
 					class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
