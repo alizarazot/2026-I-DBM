@@ -110,11 +110,10 @@
 		placeholder="Search by email"
 		hoverable={true}
 		classes={{
-			root: 'bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden',
+			root: 'bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-x-scroll',
 			inner:
 				'flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4',
-			search: 'w-full md:w-1/2 relative',
-			table: 'overflow-x-scroll block'
+			search: 'w-full'
 		}}
 		bind:inputValue={searchTerm}
 	>
