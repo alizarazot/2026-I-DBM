@@ -12,6 +12,7 @@ type CFC struct {
 	Category  string        `bson:"category"`
 	UserID    bson.ObjectID `bson:"userId"`
 	Details   string        `bson:"details"`
+	Answered  bool          `bson:"answered"`
 	CreatedAt time.Time     `bson:"createdAt"`
 	UpdatedAt time.Time     `bson:"updatedAt"`
 }

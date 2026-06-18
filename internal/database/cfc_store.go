@@ -23,8 +23,8 @@ func NewCFCStore(client *mongo.Client, database string, cfcCollection, cfcAnswer
 	}
 }
 
-func (c *CFCStore) AddCFC(ctx context.Context, cfc model.CFC, userID string) error {
-	dbcfc := modelCFCToDBCFC(&cfc, userID)
+func (c *CFCStore) AddCFC(ctx context.Context, cfc *model.CFC, userID string) error {
+	dbcfc := modelCFCToDBCFC(cfc, userID)
 
 	dbcfc.CreatedAt = time.Now()
 	dbcfc.UpdatedAt = dbcfc.CreatedAt
@@ -56,21 +56,18 @@ func (c *CFCStore) GetCFC(ctx context.Context, id string) (*IncompleteCFC, error
 	return &IncompleteCFC{dbCFCToModelCFC(&cfcdb), cfcdb.UserID.Hex()}, nil
 }
 
-func (c *CFCStore) ListCFCs(ctx context.Context, page, limit uint) ([]*IncompleteCFC, uint64, error) {
-	cursor, err := c.cCFC.Aggregate(
+func (c *CFCStore) ListCFCs(ctx context.Context) ([]*IncompleteCFC, error) {
+	cursor, err := c.cCFC.Find(
 		ctx,
-		mongo.Pipeline{
-			bson.D{{Key: "$skip", Value: page * limit}},
-			bson.D{{Key: "$limit", Value: limit}},
-		},
+		bson.D{{}},
 	)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	var cfcsdb []modeldb.CFC
 	if err := cursor.All(ctx, &cfcsdb); err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	cfcs := make([]*IncompleteCFC, len(cfcsdb))
@@ -81,26 +78,37 @@ func (c *CFCStore) ListCFCs(ctx context.Context, page, limit uint) ([]*Incomplet
 		}
 	}
 
-	count, err := c.cCFC.CountDocuments(ctx, bson.D{})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return cfcs, uint64(count), nil
+	return cfcs, nil
 }
 
-func (c *CFCStore) AddCFCAnswer(ctx context.Context, answer *model.CFCAnswer, userId string) error {
+func (c *CFCStore) AddCFCAnswer(ctx context.Context, answer string, cfcID string, userID string) error {
 	// TODO: Check that there isn't a previous answer.
 
-	id, err := bson.ObjectIDFromHex(userId)
+	cfcid, err := bson.ObjectIDFromHex(cfcID)
+	if err != nil {
+		panic(err)
+	}
+	userid, err := bson.ObjectIDFromHex(userID)
 	if err != nil {
 		panic(err)
 	}
 
-	answerdb := modelCFCAnswerToDBCFCAnswer(answer)
-	answerdb.UserID = id
-	answerdb.CreatedAt = time.Now()
+	answerdb := modeldb.CFCAnswer{
+		CFCID:     cfcid,
+		UserID:    userid,
+		Answer:    answer,
+		CreatedAt: time.Now(),
+	}
 	answerdb.UpdatedAt = answerdb.CreatedAt
+
+	if _, err := c.cCFC.UpdateOne(ctx,
+		bson.D{{Key: "_id", Value: cfcid}},
+		bson.D{{
+			Key:   "$set",
+			Value: bson.D{{Key: "answered", Value: true}},
+		}}); err != nil {
+		return err
+	}
 
 	if _, err := c.cAnswers.InsertOne(ctx, answerdb); err != nil {
 		return err
@@ -116,7 +124,12 @@ type IncompleteCFCAnswer struct {
 
 func (c *CFCStore) GetCFCAnswer(ctx context.Context, cfcID string) (*IncompleteCFCAnswer, error) {
 	var answerdb modeldb.CFCAnswer
-	if err := c.cAnswers.FindOne(ctx, bson.D{{Key: "cfcId", Value: cfcID}}).Decode(&answerdb); err != nil {
+
+	id, err := bson.ObjectIDFromHex(cfcID)
+	if err != nil {
+		panic(err)
+	}
+	if err := c.cAnswers.FindOne(ctx, bson.D{{Key: "cfcId", Value: id}}).Decode(&answerdb); err != nil {
 		return nil, err
 	}
 
@@ -124,25 +137,6 @@ func (c *CFCStore) GetCFCAnswer(ctx context.Context, cfcID string) (*IncompleteC
 		CFCAnswer: dbCFCAnswerToModelCFCAnswer(&answerdb),
 		UserID:    answerdb.UserID.Hex(),
 	}, nil
-}
-
-func modelCFCAnswerToDBCFCAnswer(answer *model.CFCAnswer) *modeldb.CFCAnswer {
-	id, err := bson.ObjectIDFromHex(answer.ID)
-	if err != nil {
-		panic(err)
-	}
-	cfcid, err := bson.ObjectIDFromHex(answer.CFCID)
-	if err != nil {
-		panic(err)
-	}
-
-	return &modeldb.CFCAnswer{
-		ID:        id,
-		CFCID:     cfcid,
-		Answer:    answer.Answer,
-		CreatedAt: time.Time{},
-		UpdatedAt: answer.UpdatedAt,
-	}
 }
 
 func dbCFCAnswerToModelCFCAnswer(answerdb *modeldb.CFCAnswer) *model.CFCAnswer {
@@ -160,6 +154,7 @@ func dbCFCToModelCFC(cfcdb *modeldb.CFC) *model.CFC {
 		Subject:   cfcdb.Subject,
 		Category:  model.NewCFCCategory(cfcdb.Category),
 		Details:   cfcdb.Details,
+		Answered:  cfcdb.Answered,
 		UpdatedAt: cfcdb.UpdatedAt,
 	}
 }
@@ -174,6 +169,7 @@ func modelCFCToDBCFC(cfc *model.CFC, userID string) *modeldb.CFC {
 		Subject:   cfc.Subject,
 		UserID:    id,
 		Category:  cfc.Category.CanonicalString(),
+		Answered:  cfc.Answered,
 		Details:   cfc.Details,
 		UpdatedAt: cfc.UpdatedAt,
 	}

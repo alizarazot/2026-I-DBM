@@ -16,7 +16,7 @@ func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, userStore *database.Use
 	e.POST("/auth", handlerSignIn(jwtSecret, userStore))
 }
 
-func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
+func addAPIRoutes(e *echo.Group, userStore *database.UserStore, cfcStore *database.CFCStore) {
 	// TODO: Sign out route.
 	e.GET("/auth", func(c *echo.Context) error {
 		token, err := echo.ContextGet[*jwt.Token](c, "user")
@@ -38,12 +38,18 @@ func addAPIRoutes(e *echo.Group, userStore *database.UserStore) {
 		return c.NoContent(http.StatusOK)
 	})
 
+	common := e.Group("/common")
+	common.POST("/cfc", handlerCommonAddCFC(userStore, cfcStore))
+
 	manager := e.Group("/manager")
 	manager.Use(middlewareRequireRole(model.UserRoleManager))
 	manager.GET("/users", handlerManagerListUsers(userStore))
 	manager.POST("/user", handlerManagerAddUser(userStore))
 	manager.PUT("/user", handlerManagerEditUser(userStore))
 	manager.DELETE("/user", handlerManagerDeleteUser(userStore))
+	manager.GET("/cfcs", handlerManagerListCFCs(userStore, cfcStore))
+	manager.GET("/cfc-answer", handlerManagerGetCFCAnswer(userStore, cfcStore))
+	manager.POST("/cfc-answer", handlerManagerAddCFCAnswer(userStore, cfcStore))
 
 	teacher := e.Group("/teacher")
 	teacher.Use(middlewareRequireRole(model.UserRoleTeacher))

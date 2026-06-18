@@ -61,6 +61,7 @@ func run(getenv func(string) string, stderr io.Writer) error {
 		logger,
 		[]byte(getenv(constants.ENV_JWT_SECRET)),
 		database.NewUserStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_USER),
+		database.NewCFCStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_CFC, constants.DB_COLLECTION_CFC_ANSWER),
 	)
 
 	addr := getenv(constants.ENV_ADDR)

@@ -203,6 +203,37 @@ func (us *UserStore) GetUsersByRole(ctx context.Context, role model.UserRole, pa
 	return users, uint(count), nil
 }
 
+func (us *UserStore) GetUserID(ctx context.Context, email string) (string, error) {
+	var userdb modeldb.User
+	if err := us.c.FindOne(ctx, bson.D{{Key: "email", Value: email}}).Decode(&userdb); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return "", ErrUserNotExists
+		}
+
+		return "", err
+	}
+
+	return userdb.ID.Hex(), nil
+}
+
+func (us *UserStore) GetUserEmail(ctx context.Context, id string) (string, error) {
+	userid, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return "", err
+	}
+
+	var userdb modeldb.User
+	if err := us.c.FindOne(ctx, bson.D{{Key: "_id", Value: userid}}).Decode(&userdb); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return "", ErrUserNotExists
+		}
+
+		return "", err
+	}
+
+	return userdb.Email, nil
+}
+
 func dbUserToModelUser(userdb modeldb.User) *model.User {
 	return &model.User{
 		Email: userdb.Email,

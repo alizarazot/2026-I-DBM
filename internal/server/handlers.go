@@ -6,6 +6,8 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/model"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/labstack/echo/v5"
 )
@@ -48,5 +50,41 @@ func handlerSignIn(jwtSecret []byte, userStore *database.UserStore) echo.Handler
 		})
 
 		return c.NoContent(http.StatusOK)
+	}
+}
+
+func handlerCommonAddCFC(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var data struct {
+			Subject  string            `json:"subject"`
+			Category model.CFCCategory `json:"category"`
+			Details  string            `json:"details"`
+		}
+		if err := echo.BindBody(c, &data); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		token, err := echo.ContextGet[*jwt.Token](c, "user")
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+		user := auth.ExtractUser(token)
+
+		cfc := model.CFC{
+			Subject:  data.Subject,
+			Category: data.Category,
+			Details:  data.Details,
+		}
+
+		userID, err := userStore.GetUserID(c.Request().Context(), user.Email)
+		if err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		if err := cfcStore.AddCFC(c.Request().Context(), &cfc, userID); err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return nil
 	}
 }

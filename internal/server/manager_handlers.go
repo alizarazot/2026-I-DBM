@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
 	"github.com/alizarazot/2026-i-dbm/internal/model"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v5"
 )
 
@@ -128,5 +130,78 @@ func handlerManagerDeleteUser(userStore *database.UserStore) echo.HandlerFunc {
 		}
 
 		return nil
+	}
+}
+
+func handlerManagerListCFCs(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		incompleteCFCs, err := cfcStore.ListCFCs(c.Request().Context())
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		cfcs := make([]*model.CFC, len(incompleteCFCs))
+		for idx, ic := range incompleteCFCs {
+			email, err := userStore.GetUserEmail(c.Request().Context(), ic.UserID)
+			if err != nil {
+				return echo.ErrInternalServerError.Wrap(err)
+			}
+			ic.CFC.UserEmail = email
+			cfcs[idx] = ic.CFC
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{"cfcs": cfcs})
+	}
+}
+
+func handlerManagerAddCFCAnswer(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var data struct {
+			CFCID  string `json:"cfcId"`
+			Answer string
+		}
+		if err := echo.BindBody(c, &data); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		token, err := echo.ContextGet[*jwt.Token](c, "user")
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+		user := auth.ExtractUser(token)
+
+		id, err := userStore.GetUserID(c.Request().Context(), user.Email)
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		if err := cfcStore.AddCFCAnswer(c.Request().Context(), data.Answer, data.CFCID, id); err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		return c.NoContent(http.StatusOK)
+	}
+}
+
+func handlerManagerGetCFCAnswer(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		var data struct {
+			ID string `query:"id"`
+		}
+		if err := c.Bind(&data); err != nil {
+			return echo.ErrBadRequest.Wrap(err)
+		}
+
+		incomplete, err := cfcStore.GetCFCAnswer(c.Request().Context(), data.ID)
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+		email, err := userStore.GetUserEmail(c.Request().Context(), incomplete.UserID)
+		if err != nil {
+			return echo.ErrInternalServerError.Wrap(err)
+		}
+		incomplete.CFCAnswer.UserEmail = email
+
+		return c.JSON(http.StatusOK, map[string]any{"answer": incomplete.CFCAnswer})
 	}
 }

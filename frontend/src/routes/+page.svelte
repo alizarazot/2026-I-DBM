@@ -6,24 +6,20 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import type { User } from '$lib/api/model';
+
+	import { userInfo } from '$lib/api/common';
 
 	onMount(async () => {
 		// TODO: Show skeleton to avoid flash-of-content.
 		try {
-			const resp = await fetch('/api/auth');
-			if (!resp.ok) {
-				throw new Error('unknow error when asking for sign-in status');
-			}
+			const user = await userInfo();
 
-			const data = (await resp.json()) as { user: User };
-
-			if (data.user.role == 'invalid') {
+			if (user.role == 'invalid') {
 				throw new Error('user role is invalid');
 			}
 
 			// User is signed in, so redirect.
-			goto(resolve(`/${data.user.role}`));
+			goto(resolve(`/${user.role}`));
 		} catch (err) {
 			console.error(`Unexpected error: ${err}`);
 		}

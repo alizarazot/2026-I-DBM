@@ -9,5 +9,7 @@ const (
 )
 
 const (
-	DB_COLLECTION_USER = "user"
+	DB_COLLECTION_USER       = "user"
+	DB_COLLECTION_CFC        = "cfc"
+	DB_COLLECTION_CFC_ANSWER = "cfc_answer"
 )

@@ -12,13 +12,14 @@ type CFC struct {
 	Category  CFCCategory `json:"category"`
 	UserEmail string      `json:"userEmail"`
 	Details   string      `json:"details"`
+	Answered  bool        `json:"answered"`
 	UpdatedAt time.Time   `json:"updatedAt"`
 }
 
 type CFCAnswer struct {
 	ID        string    `json:"id,omitempty"`
 	CFCID     string    `json:"cfcId"`
-	UserEmail string    `json:"userId"`
+	UserEmail string    `json:"userEmail"`
 	Answer    string    `json:"answer"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

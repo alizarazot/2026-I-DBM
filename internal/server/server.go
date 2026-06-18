@@ -17,6 +17,7 @@ func NewServer(
 	logger *slog.Logger,
 	jwtSecret []byte,
 	userStore *database.UserStore,
+	cfcStore *database.CFCStore,
 ) *echo.Echo {
 	e := echo.NewWithConfig(echo.Config{Logger: logger})
 	e.Use(middleware.RequestLogger())
@@ -43,7 +44,7 @@ func NewServer(
 			return auth.JWTClaims()
 		},
 	}))
-	addAPIRoutes(api, userStore)
+	addAPIRoutes(api, userStore, cfcStore)
 
 	return e
 }
