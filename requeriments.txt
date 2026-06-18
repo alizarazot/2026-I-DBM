@@ -1,2 +1,0 @@
-moonshine_voice
-fastapi[standard]

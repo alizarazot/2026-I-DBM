@@ -1,30 +1,45 @@
-# sv
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+# Línea Platform
 
-## Developing
+This is a self-managed platform for remote class management, including assistance management and lecture transcriptions.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+# Characteristics
+
+- A unified login system for managers, teachers and students.
+- Creation and administration of users by the manager.
+- Creation and administration of classes (with custom weekly schedules) by the manager.
+- Classes can be specified with a maximum number of students and assigned teachers (more than one).
+- Remote audio-only assistance of lectures with transcription.
+- A system for searching for past classes using semantic and full-text searches.
+- A simple system to help teachers verify student engagement with lectures (automatic testing and feedback).
+- Real-time student location tracking (visible to teachers if the manager allows it) during lectures.
+- Automatic assistance saving.
+- Generation of reports for managers, teachers and students.
+- A built-in customer feedback and complaints system with email notifications.
+- Dark and light theme support with beautiful animations.
+
+# Deployment
+
+Both a `Dockerfile` and `docker-compose.yaml` are provided for your convenience. You can simply run the following command to get the platform up and running:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+APP_PORT=9090 docker compose up --build
 ```
 
-## Building
-
-To create a production version of your app:
+To create a user (for example, an admin account or to regain access if you get locked out), use:
 
 ```sh
-npm run build
+docker exec -it <container-name> /linea-manager create-user
 ```
 
-You can preview the production build with `npm run preview`.
+Replace `<container-name>` with the name Docker Compose assigned to the container (typically `2026-i-dbm-linea-platform-1`).
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+If you encounter this [error](https://github.com/denoland/deno/issues/34008), the only workaround is to recreate the container and hope the race condition doesn’t happen. As of this writing, a fix hasn’t been released in a Deno Docker image yet.
 
-## Credits
+# Additional information
 
-- <https://cptcrunchy.medium.com/how-to-build-a-voice-recorder-with-sveltekit-d331e3e94af6>.
+This project is a solution to a **database management** assignment, which was part of the curriculum of [Universidad Francisco de Paula Santander Ocaña](https://ufpso.edu.co/) in Colombia.
+
+This project couldn't have been completed without these guides, so a special thanks to them.
+
+- <https://grafana.com/blog/how-i-write-http-services-in-go-after-13-years/>.

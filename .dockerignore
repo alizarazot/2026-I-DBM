@@ -1,0 +1,10 @@
+
+# Control version system.
+/.git/
+
+# Deno files.
+/frontend/node_modules/
+
+# Build artifacts.
+/frontend/build/
+/frontend/.svelte-kit/

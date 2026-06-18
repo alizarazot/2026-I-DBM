@@ -1,0 +1,24 @@
+services:
+  linea-platform:
+    build: .
+    ports:
+      - "${APP_PORT}:9090"
+    environment:
+      LINEA_ADDR: ":9090"
+      LINEA_MONGODB_URI: "mongodb://mongo-database:27017/"
+      LINEA_MONGODB_DATABASE: "linea-platform-v1"
+    depends_on:
+      - mongo-database
+
+  mongo-database:
+    image: mongo:8.3.2
+    ports:
+      - "27017:27017"
+    environment:
+      # Workaround for Linux 6.19+. See: <https://jira.mongodb.org/browse/SERVER-121912>.
+      - GLIBC_TUNABLES=glibc.pthread.rseq=1
+    volumes:
+      - linea-platform-data:/data/db
+
+volumes:
+  linea-platform-data:
