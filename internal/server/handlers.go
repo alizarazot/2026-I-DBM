@@ -2,10 +2,12 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/mail"
 	"github.com/alizarazot/2026-i-dbm/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 
@@ -53,7 +55,7 @@ func handlerSignIn(jwtSecret []byte, userStore *database.UserStore) echo.Handler
 	}
 }
 
-func handlerCommonAddCFC(userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
+func handlerCommonAddCFC(mailService *mail.Service, userStore *database.UserStore, cfcStore *database.CFCStore) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		var data struct {
 			Subject  string            `json:"subject"`
@@ -83,6 +85,11 @@ func handlerCommonAddCFC(userStore *database.UserStore, cfcStore *database.CFCSt
 
 		if err := cfcStore.AddCFC(c.Request().Context(), &cfc, userID); err != nil {
 			return echo.ErrInternalServerError.Wrap(err)
+		}
+
+		fmt.Println("!D: data", user)
+		if err := mailService.Send(user.Email, fmt.Sprintf("Your %s was sended sucessfully!", cfc.Category.CanonicalString()), fmt.Sprintf("Subject: %s\n\n---\n\n%s\n\n---\n\nThank you for your submission.", cfc.Subject, cfc.Details)); err != nil {
+			c.Logger().Error("error sending mail", "err", err)
 		}
 
 		return nil

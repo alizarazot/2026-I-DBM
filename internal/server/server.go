@@ -6,6 +6,7 @@ import (
 	"github.com/alizarazot/2026-i-dbm/frontend"
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/mail"
 	"github.com/golang-jwt/jwt/v5"
 
 	echojwt "github.com/labstack/echo-jwt/v5"
@@ -16,6 +17,7 @@ import (
 func NewServer(
 	logger *slog.Logger,
 	jwtSecret []byte,
+	mailService *mail.Service,
 	userStore *database.UserStore,
 	cfcStore *database.CFCStore,
 ) *echo.Echo {
@@ -44,7 +46,7 @@ func NewServer(
 			return auth.JWTClaims()
 		},
 	}))
-	addAPIRoutes(api, userStore, cfcStore)
+	addAPIRoutes(api, mailService, userStore, cfcStore)
 
 	return e
 }

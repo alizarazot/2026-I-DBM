@@ -10,6 +10,7 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/constants"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/mail"
 	"github.com/alizarazot/2026-i-dbm/internal/server"
 
 	"charm.land/log/v2"
@@ -56,10 +57,21 @@ func run(getenv func(string) string, stderr io.Writer) error {
 	}
 	logger.Info("successful ping to database", "pingResult", pingResult)
 
+	mailService, err := mail.NewMailService(
+		getenv(constants.ENV_SMTP_SERVER),
+		getenv(constants.ENV_SMTP_FROM),
+		getenv(constants.ENV_SMTP_USERNAME),
+		getenv(constants.ENV_SMTP_PASSWORD),
+	)
+	if err != nil {
+		return err
+	}
+
 	mongoDatabase := getenv(constants.ENV_MONGODB_DATABASE)
 	server := server.NewServer(
 		logger,
 		[]byte(getenv(constants.ENV_JWT_SECRET)),
+		mailService,
 		database.NewUserStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_USER),
 		database.NewCFCStore(mongoClient, mongoDatabase, constants.DB_COLLECTION_CFC, constants.DB_COLLECTION_CFC_ANSWER),
 	)

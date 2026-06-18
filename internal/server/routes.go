@@ -6,6 +6,7 @@ import (
 
 	"github.com/alizarazot/2026-i-dbm/internal/auth"
 	"github.com/alizarazot/2026-i-dbm/internal/database"
+	"github.com/alizarazot/2026-i-dbm/internal/mail"
 	"github.com/alizarazot/2026-i-dbm/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 
@@ -16,7 +17,7 @@ func addPublicAPIRoutes(e *echo.Group, jwtSecret []byte, userStore *database.Use
 	e.POST("/auth", handlerSignIn(jwtSecret, userStore))
 }
 
-func addAPIRoutes(e *echo.Group, userStore *database.UserStore, cfcStore *database.CFCStore) {
+func addAPIRoutes(e *echo.Group, mailService *mail.Service, userStore *database.UserStore, cfcStore *database.CFCStore) {
 	// TODO: Sign out route.
 	e.GET("/auth", func(c *echo.Context) error {
 		token, err := echo.ContextGet[*jwt.Token](c, "user")
@@ -39,7 +40,7 @@ func addAPIRoutes(e *echo.Group, userStore *database.UserStore, cfcStore *databa
 	})
 
 	common := e.Group("/common")
-	common.POST("/cfc", handlerCommonAddCFC(userStore, cfcStore))
+	common.POST("/cfc", handlerCommonAddCFC(mailService, userStore, cfcStore))
 
 	manager := e.Group("/manager")
 	manager.Use(middlewareRequireRole(model.UserRoleManager))
